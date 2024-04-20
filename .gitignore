@@ -85,3 +85,6 @@ PolyFEMOptions.cmake
 docs/html
 scripts/*.txt
 scripts/*.json
+
+.history/
+.vscode/

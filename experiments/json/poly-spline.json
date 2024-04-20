@@ -1,0 +1,32 @@
+{
+    "geometry": {
+        "mesh": "../mesh/CubeHexMesh.msh",
+        "n_refs": 1
+    },
+
+    "materials": {
+        "type": "Laplacian"
+    },
+
+    "preset_problem": {
+        "type": "FrankeOld"
+    },
+
+    "solver": {
+        "linear": {
+            "solver": "Eigen::UmfPackLU"
+        }
+    },
+
+    "space": {
+        "discr_order": 1,
+        "basis_type": "Spline"
+    },
+
+    "output": {
+        "json": "stats.json",
+        "paraview": {
+            "file_name": "<solution.vtu>"
+        }
+    }
+}
