@@ -1,0 +1,57 @@
+{
+    "common": "common-ipc.json",
+    "geometry": [{
+        "mesh": "../mesh/iga-ipc/hex.obj",
+        "transformation": {
+            "scale": 0.04
+        },
+        "volume_selection": 1
+    }, {
+        "mesh": "../mesh/iga-ipc/plane.obj",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [0.105, 0, 0],
+            "rotation": [0, 0, 90],
+            "dimensions": [0.4, 0, 0.4]
+        }
+    }],
+    "space": {
+        "discr_order": 2,
+        "basis_type": "Spline",
+        "advanced": {
+            "bc_method": "sample"
+        }
+    },
+    "time": {
+        "tend": 0.004,
+        "dt": 2e-05
+    },
+    "contact": {
+        "dhat": 6.92820323e-05,
+        "collision_mesh": {
+            "mesh": "../mesh/iga-ipc/upsampled_surface.obj",
+            "linear_map": "../mesh/iga-ipc/W_matrix.hdf5"
+        }
+    },
+    "solver": {
+        "nonlinear": {
+            "grad_norm": 1e-12
+        }
+    },
+    "boundary_conditions": {
+        "rhs": [0, 0, 0]
+    },
+    "initial_conditions": {
+        "velocity": [{
+            "id": 1,
+            "value": [67, 0, 0]
+        }]
+    },
+    "materials": [{
+        "id": 1,
+        "E": 10000000.0,
+        "nu": 0.45,
+        "rho": 1150,
+        "type": "NeoHookean"
+    }]
+}
