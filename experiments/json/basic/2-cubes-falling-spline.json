@@ -1,0 +1,33 @@
+{
+    "common": "ipc-defaults.json",
+    
+    "geometry": [{
+        "mesh": "../../mesh/basic/hexcube.msh",
+        "transformation": {
+            "translation": [0, 3, 0]
+        },
+        "volume_selection": 1
+    }, {
+        "mesh": "../../mesh/basic/hexcube.msh",
+        "transformation": {
+            "translation": [0, 1, 0]
+        },
+        "volume_selection": 2
+    }, {
+        "mesh": "../../mesh/ipc/plane.obj",
+        "is_obstacle": true
+    }],
+    
+    "contact": {
+        "friction_coefficient": 0.1,
+        "collision_mesh": {
+            "enabled": true,
+            "max_edge_length": 1.44
+        }
+    },
+    
+    "space": {
+        "discr_order": 1,
+        "basis_type": "Spline"
+    }
+}
