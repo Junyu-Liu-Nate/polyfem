@@ -1429,11 +1429,13 @@ namespace polyfem
 				const std::string root_path = utils::json_value<std::string>(args, "root_path", "");
 				// TODO: handle transformation per geometry
 				const json transformation = json_as_array(args["geometry"])[0]["transformation"];
+				std::cout << "Checkpoint 0" << std::endl;
 				mesh::load_collision_proxy(
 					utils::resolve_path(collision_mesh_args["mesh"], root_path),
 					utils::resolve_path(collision_mesh_args["linear_map"], root_path),
 					in_node_to_node, transformation, collision_vertices, collision_codim_vids,
 					collision_edges, collision_triangles, displacement_map_entries);
+				std::cout << "Checkpoint 1" << std::endl;
 			}
 			else
 			{

@@ -324,7 +324,9 @@ namespace polyfem::mesh
 		std::vector<Eigen::Triplet<double>> &displacement_map_entries)
 	{
 		load_collision_proxy_mesh(mesh_filename, transformation, vertices, codim_vertices, edges, faces);
+		std::cout << "Finish loading collision proxy mesh" << std::endl;
 		load_collision_proxy_displacement_map(weights_filename, in_node_to_node, vertices.rows(), displacement_map_entries);
+		std::cout << "Finish loading collision proxy displacement map" << std::endl;
 	}
 
 	void load_collision_proxy_mesh(
@@ -373,6 +375,7 @@ namespace polyfem::mesh
 		Eigen::VectorXd values = file.readDataset<Eigen::VectorXd>("weight_triplets/values");
 		Eigen::VectorXi rows = file.readDataset<Eigen::VectorXi>("weight_triplets/rows");
 		Eigen::VectorXi cols = file.readDataset<Eigen::VectorXi>("weight_triplets/cols");
+		std::cout << "Load displacement map: Finish loading values, rows, cols." << std::endl;
 		assert(rows.maxCoeff() < num_proxy_vertices);
 		assert(cols.maxCoeff() < num_fe_nodes);
 
@@ -380,11 +383,17 @@ namespace polyfem::mesh
 		// const Eigen::VectorXi in_ordered_vertices = file.exist("ordered_vertices") ? H5Easy::load<Eigen::VectorXi>(file, "ordered_vertices") : mesh->in_ordered_vertices();
 		// const Eigen::MatrixXi in_ordered_edges = file.exist("ordered_edges") ? H5Easy::load<Eigen::MatrixXi>(file, "ordered_edges") : mesh->in_ordered_edges();
 		// const Eigen::MatrixXi in_ordered_faces = file.exist("ordered_faces") ? H5Easy::load<Eigen::MatrixXi>(file, "ordered_faces") : mesh->in_ordered_faces();
+		// std::cout << "Load displacement map: Finishn loading vertices, edges, and faces." << std::endl;
 
 		displacement_map_entries.clear();
 		displacement_map_entries.reserve(values.size());
 
 		assert(in_node_to_node.size() == num_fe_nodes);
+		std::cout << "Load displacement map: All assertion passed." << std::endl;
+		std::cout << "Value size: " << values.size() << std::endl;
+		std::cout << "Row size: " << rows.size() << std::endl;
+		std::cout << "Col size: " << cols.size() << std::endl;
+		std::cout << "in_node_to_node size: " << in_node_to_node.size() << std::endl;
 		for (int i = 0; i < values.size(); i++)
 		{
 			// Rearrange the columns based on the FEM mesh node order
