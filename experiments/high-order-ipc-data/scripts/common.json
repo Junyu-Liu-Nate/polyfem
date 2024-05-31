@@ -1,0 +1,40 @@
+{
+    "contact": {
+        "enabled": true,
+        "dhat": 0.001
+    },
+    "solver": {
+        "linear": {
+            "solver": ["Eigen::PardisoLDLT", "Eigen::CholmodDecomposition"]
+        },
+        "nonlinear": {
+            "line_search": {
+                "method": "Backtracking"
+            },
+            "solver": "Newton",
+            "x_delta": 1e-05
+        },
+        "advanced": {
+            "lump_mass_matrix": false
+        }
+    },
+    "output": {
+        "json": "sim.json",
+        "paraview": {
+            "file_name": "sim.pvd",
+            "surface": true,
+            "high_order_mesh": true,
+            "options": {
+                "material": true,
+                "body_ids": true,
+                "contact_forces": true,
+                "friction_forces": true
+            },
+            "vismesh_rel_area": 10000000
+        },
+        "advanced": {
+            "save_solve_sequence_debug": false,
+            "save_time_sequence": true
+        }
+    }
+}

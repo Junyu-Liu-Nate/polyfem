@@ -1,0 +1,50 @@
+{
+    "common": "../common.json",
+    "geometry": [{
+        "mesh": "../../meshes/armadillo-standing/armadillo1.msh",
+        "transformation": {
+            "translation": [-0.5, 0.5, 0],
+            "rotation": [0, 0, 0]
+        },
+        "volume_selection": 1
+    }, {
+        "mesh": "../../meshes/obstacles/plane.obj",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [-0.5, 0, 0],
+            "rotation": [0, 0, 0],
+            "dimensions": [2, 0, 2]
+        }
+    }],
+    "time": {
+        "tend": 5,
+        "time_steps": 50
+    },
+    "contact": {
+        "dhat": 1e-05,
+        "friction_coefficient": 0.1
+    },
+    "solver": {
+        "contact": {
+            "friction_iterations": 20
+        }
+    },
+    "boundary_conditions": {
+        "rhs": [0, 9.81, 0]
+    },
+    "materials": [{
+        "id": 1,
+        "E": 2e11,
+        "nu": 0.2,
+        "rho": 1000,
+        "type": "NeoHookean"
+    }],
+    "output": {
+        "paraview": {
+            "file_name": "falling.pvd",
+            "options": {
+                "material": true
+            }
+        }
+    }
+}

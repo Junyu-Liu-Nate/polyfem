@@ -1,0 +1,114 @@
+{
+    "common": "../common.json",
+    "geometry": [{
+        "mesh": "../../meshes/graspsim/gripper.msh",
+        "transformation": {
+            "translation": [-10, 9, 0],
+            "rotation": [0, 0, 0],
+            "scale": 3
+        },
+        "surface_selection": [{
+            "id": 1,
+            "relative": true,
+            "box": [
+                [0, 0.99, 0],
+                [0.5, 1, 1]
+            ]
+        }, {
+            "id": 2,
+            "relative": true,
+            "box": [
+                [0.5, 0.99, 0],
+                [1, 1, 1]
+            ]
+        }]
+    }, {
+        "mesh": "../../meshes/graspsim/gripper.msh",
+        "transformation": {
+            "translation": [10, 9, 0],
+            "rotation": [0, 180, 0],
+            "scale": 3
+        },
+        "surface_selection": [{
+            "id": 1,
+            "relative": true,
+            "box": [
+                [0, 0.99, 0],
+                [0.5, 1, 1]
+            ]
+        }, {
+            "id": 2,
+            "relative": true,
+            "box": [
+                [0.5, 0.99, 0],
+                [1, 1, 1]
+            ]
+        }]
+    }, {
+        "mesh": "../../meshes/gargoyle/gargoyle.msh",
+        "transformation": {
+            "translation": [22.5, 10.5, -7.5],
+            "rotation": [0, 0, 0],
+            "scale": 4.5
+        },
+        "volume_selection": 3,
+        "surface_selection": [{
+            "id": 1,
+            "relative": true,
+            "box": [
+                [0, 0.99, 0],
+                [0.5, 1, 1]
+            ]
+        }, {
+            "id": 2,
+            "relative": true,
+            "box": [
+                [0.5, 0.99, 0],
+                [1, 1, 1]
+            ]
+        }]
+    }, {
+        "mesh": "../../meshes/obstacles/plane.obj",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [0, -0.01, 0],
+            "scale": 6
+        }
+    }],
+    "time": {
+        "tend": 2,
+        "dt": 0.02
+    },
+    "contact": {
+        "friction_coefficient": 0.03
+    },
+    "boundary_conditions": {
+        "rhs": [0, 9810, 0],
+        "dirichlet_boundary": [{
+            "id": 1,
+            "value": ["6 * min(t, 1)", "6 * max(0, t-1)", 0]
+        }, {
+            "id": 2,
+            "value": ["-6 * min(t, 1)", "6 * max(0, t-1)", 0]
+        }]
+    },
+    "materials": [{
+        "id": 1,
+        "E": 2e12,
+        "nu": 0.3,
+        "rho": 7.75,
+        "type": "NeoHookean"
+    }, {
+        "id": 2,
+        "E": 1e8,
+        "nu": 0.45,
+        "rho": 2.3,
+        "type": "NeoHookean"
+    }, {
+        "id": 3,
+        "E": 1e10,
+        "nu": 0.3,
+        "rho": 1.11,
+        "type": "NeoHookean"
+    }]
+}

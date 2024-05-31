@@ -1,0 +1,53 @@
+{
+    "common": "../common.json",
+    "geometry": [{
+        "mesh": "../../meshes/2D/triangle_ref1.obj",
+        "transformation": {
+            "scale": 0.04
+        },
+        "volume_selection": 1,
+        "surface_selection": 1
+    }, {
+        "mesh": "../../meshes/2D/obstacles/line.obj",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [0.105, 0],
+            "rotation": 90,
+            "dimensions": [0.4, 0]
+        }
+    }],
+    "space": {
+        "discr_order": 3,
+        "advanced": {
+            "bc_method": "sample"
+        }
+    },
+    "time": {
+        "tend": 0.004,
+        "dt": 2e-05
+    },
+    "contact": {
+        "dhat": 6.92820323e-05,
+        "collision_mesh": {
+            "mesh": "../../meshes/2D/triangle_ref1-collision-mesh.obj",
+            "#linear_map": "../../weights/higher_order/triangle_ref1-P2.hdf5",
+            "linear_map": "../../weights/higher_order/triangle_ref1-P3.hdf5"
+        }
+    },
+    "boundary_conditions": {
+        "rhs": [0, 0]
+    },
+    "initial_conditions": {
+        "velocity": [{
+            "id": 1,
+            "value": [67, 0]
+        }]
+    },
+    "materials": [{
+        "id": 1,
+        "E": 10000000.0,
+        "nu": 0.45,
+        "rho": 1150,
+        "type": "NeoHookean"
+    }]
+}

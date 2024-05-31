@@ -1,0 +1,81 @@
+{
+    "common": "../common.json",
+    "geometry": [{
+        "mesh": "../../meshes/microstructure/microstructure_P4.msh",
+        "transformation": {
+            "scale": 6
+        },
+        "volume_selection": 1,
+        "surface_selection": [{
+            "id": 2,
+            "axis": 2,
+            "position": 0.99,
+            "relative": true
+        }, {
+            "id": 4,
+            "axis": -2,
+            "position": 0.01,
+            "relative": true
+        }]
+    }, {
+        "mesh": "../../meshes/cube/cube.ply",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [3, 6.12, 3],
+            "dimensions": [9, 0.2, 9]
+        },
+        "surface_selection": 1000
+    }, {
+        "mesh": "../../meshes/cube/cube.ply",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [3, -0.12, 3],
+            "dimensions": [9, 0.2, 9]
+        }
+    }],
+    "boundary_conditions": {
+        "obstacle_displacements": [{
+            "id": 1000,
+            "value": [0, "4.5 * smooth_abs(t - 1, 5) - 4.5", 0]
+        }],
+        "rhs": [0, 9800, 0]
+    },
+    "space": {
+        "discr_order": 4
+    },
+    "time": {
+        "tend": 2,
+        "dt": 0.01
+    },
+    "contact": {
+        "enabled": true,
+        "dhat": 1e-05,
+        "friction_coefficient": 0.3,
+        "collision_mesh": {
+            "mesh": "../../meshes/microstructure/microstructure_P4-P4-collision-mesh.obj",
+            "linear_map": "../../weights/higher_order/microstructure_P4-P4.hdf5",
+            "scale": 6
+        }
+    },
+    "solver": {
+        "nonlinear": {
+            "x_delta": 0.0001
+        },
+        "augmented_lagrangian": {
+            "initial_weight": 100000000.0,
+            "max_weight": 10000000000000.0
+        },
+        "contact": {
+            "CCD": {
+                "broad_phase": "STQ"
+            }
+        }
+    },
+    "materials": [{
+        "id": 1,
+        "E": 6000000.0,
+        "nu": 0.48,
+        "rho": 1.03,
+        "type": "NeoHookean"
+    }]
+}

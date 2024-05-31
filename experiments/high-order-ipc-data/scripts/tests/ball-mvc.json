@@ -1,0 +1,52 @@
+{
+    "common": "../common.json",
+    "geometry": [{
+        "mesh": "../../meshes/cube-symmetric.msh",
+        "transformation": {
+            "translation": [0, 0, 0]
+        },
+        "volume_selection": 1
+    }, {
+        "mesh": "../../meshes/plane.obj",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [0, -1, 0],
+            "rotation": [0, 0, -15],
+            "dimensions": [10, 0, 2]
+        }
+    }],
+    "time": {
+        "tend": 5,
+        "time_steps": 200
+    },
+    "contact": {
+        "friction_coefficient": 0.5,
+        "collision_mesh": {
+            "mesh": "../../meshes/ball.obj",
+            "linear_map": "../../weights/mean_value/cube-symmetric-to-ball.hdf5"
+        }
+    },
+    "solver": {
+        "contact": {
+            "friction_iterations": 20,
+            "CCD": {
+                "broad_phase": "STQ_GPU"
+            }
+        }
+    },
+    "boundary_conditions": {
+        "rhs": [0, 9.81, 0]
+    },
+    "materials": [{
+        "id": 1,
+        "E": 100000.0,
+        "nu": 0.4,
+        "rho": 1000,
+        "type": "NeoHookean"
+    }],
+    "output": {
+        "paraview": {
+            "file_name": "ball.pvd"
+        }
+    }
+}

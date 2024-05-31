@@ -1,0 +1,16 @@
+numpy
+scipy
+numba
+trimesh
+aabbtree
+meshio
+h5py
+tqdm
+rtree
+networkx
+torch
+triangle==20220202
+libigl
+# quadpy
+# pymesh
+# meshplot

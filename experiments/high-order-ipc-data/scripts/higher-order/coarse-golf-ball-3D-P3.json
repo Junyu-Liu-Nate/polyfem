@@ -1,0 +1,56 @@
+{
+    "common": "../common.json",
+    "geometry": [{
+        "mesh": "../../meshes/sphere/sphere-coarse.msh",
+        "transformation": {
+            "scale": 0.04
+        },
+        "volume_selection": 1
+    }, {
+        "mesh": "../../meshes/obstacles/plane.obj",
+        "is_obstacle": true,
+        "transformation": {
+            "translation": [0.105, 0, 0],
+            "rotation": [0, 0, 90],
+            "dimensions": [0.4, 0, 0.4]
+        }
+    }],
+    "space": {
+        "discr_order": 3,
+        "advanced": {
+            "bc_method": "sample"
+        }
+    },
+    "time": {
+        "tend": 0.004,
+        "dt": 2e-05
+    },
+    "contact": {
+        "dhat": 6.92820323e-05,
+        "collision_mesh": {
+            "mesh": "../../meshes/sphere/sphere-fine.ply",
+            "linear_map": "../../weights/higher_order/sphere-coarse-P3-to-sphere-fine.hdf5"
+        }
+    },
+    "solver": {
+        "nonlinear": {
+            "grad_norm": 1e-12
+        }
+    },
+    "boundary_conditions": {
+        "rhs": [0, 0, 0]
+    },
+    "initial_conditions": {
+        "velocity": [{
+            "id": 1,
+            "value": [67, 0, 0]
+        }]
+    },
+    "materials": [{
+        "id": 1,
+        "E": 10000000.0,
+        "nu": 0.45,
+        "rho": 1150,
+        "type": "NeoHookean"
+    }]
+}
