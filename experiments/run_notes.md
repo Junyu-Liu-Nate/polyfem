@@ -4,7 +4,7 @@
 
 - **coarse-golf-ball-3D-P3**
     ```
-    ./PolyFEM_bin -j ../data/high-order-ipc-data/scripts/higher-order/coarse-golf-ball-3D-P3.json -o ../experiments/output/contact-3D-higher-order/coarse-golf-ball-3D-P3/
+    ./PolyFEM_bin -j ../experiments/high-order-ipc-data/scripts/higher-order/coarse-golf-ball-3D-P3.json -o ../experiments/output/contact-3D-higher-order/coarse-golf-ball-3D-P3/
     ```
 - **hex-spline**
     ```
