@@ -7,6 +7,8 @@
 
 #include <polyfem/basis/InterfaceData.hpp>
 
+#include <polyfem/mesh/MeshNodes.hpp>
+
 #include <Eigen/Dense>
 #include <vector>
 #include <map>
@@ -18,7 +20,7 @@ namespace polyfem
 		class SplineBasis2d
 		{
 		public:
-			static int build_bases(
+			static std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> build_bases(
 				const mesh::Mesh2D &mesh,
 				const std::string &assembler,
 				const int quadrature_order,

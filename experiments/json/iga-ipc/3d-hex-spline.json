@@ -1,7 +1,7 @@
 {
     "common": "../common-ipc.json",
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/hex.obj",
+        "mesh": "../../mesh/basic/hexcube.msh",
         "transformation": {
             "scale": 0.04
         },
@@ -16,7 +16,7 @@
         }
     }],
     "space": {
-        "discr_order": 2,
+        "discr_order": 1,
         "basis_type": "Spline",
         "advanced": {
             "bc_method": "sample"
@@ -27,11 +27,7 @@
         "dt": 2e-05
     },
     "contact": {
-        "dhat": 6.92820323e-05,
-        "collision_mesh": {
-            "mesh": "../mesh/iga-ipc/upsampled_surface.obj",
-            "linear_map": "../mesh/iga-ipc/W_matrix.hdf5"
-        }
+        "dhat": 6.92820323e-05
     },
     "solver": {
         "nonlinear": {

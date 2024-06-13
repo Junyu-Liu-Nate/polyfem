@@ -22,12 +22,12 @@
         "friction_coefficient": 0.1,
         "collision_mesh": {
             "enabled": true,
-            "max_edge_length": 1.44
+            "max_edge_length": 1.0
         }
     },
     
     "space": {
         "discr_order": 1,
-        "basis_type": "Spline"
+        "basis_type": "Lagrange"
     }
 }

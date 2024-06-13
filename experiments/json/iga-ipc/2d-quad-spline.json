@@ -10,13 +10,13 @@
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true,
         "transformation": {
-            "translation": [0.105, 0, 0],
-            "rotation": 0,
+            "translation": [0.2, 0, 0],
+            "rotation": 90,
             "dimensions": [0.4, 0, 0.4]
         }
     }],
     "space": {
-        "discr_order": 2,
+        "discr_order": 3,
         "basis_type": "Spline",
         "advanced": {
             "bc_method": "sample"
@@ -27,11 +27,7 @@
         "dt": 2e-05
     },
     "contact": {
-        "dhat": 6.92820323e-05,
-        "collision_mesh": {
-            "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-upsample.obj",
-            "linear_map": "../../mesh/iga-ipc/2d-quad/2d-quad-map.hdf5"
-        }
+        "dhat": 6.92820323e-05
     },
     "solver": {
         "nonlinear": {

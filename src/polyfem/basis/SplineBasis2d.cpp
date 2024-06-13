@@ -676,14 +676,16 @@ namespace polyfem
 			}
 		} // namespace
 
-		int SplineBasis2d::build_bases(const Mesh2D &mesh,
+		std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> SplineBasis2d::build_bases(const Mesh2D &mesh,
 									   const std::string &assembler,
 									   const int quadrature_order, const int mass_quadrature_order, std::vector<ElementBases> &bases, std::vector<LocalBoundary> &local_boundary, std::map<int, InterfaceData> &poly_edge_to_data)
 		{
 			using std::max;
 			assert(!mesh.is_volume());
 
-			MeshNodes mesh_nodes(mesh, true, true, 1, 1);
+			// MeshNodes mesh_nodes(mesh, true, true, 1, 1);
+			auto mesh_nodes = std::make_shared<polyfem::mesh::MeshNodes>(mesh, true, true, 1, 1);
+			std::cout << "Check for build_bases in SplineBasis2d" << std::endl;
 
 			const int n_els = mesh.n_elements();
 			bases.resize(n_els);
@@ -701,7 +703,7 @@ namespace polyfem
 				NodeMatrix loc_nodes;
 
 				// const int max_local_base =
-				build_local_space(mesh, mesh_nodes, e, space, loc_nodes, local_boundary, poly_edge_to_data);
+				build_local_space(mesh, *mesh_nodes, e, space, loc_nodes, local_boundary, poly_edge_to_data);
 				// n_bases = max(n_bases, max_local_base);
 
 				ElementBases &b = bases[e];
@@ -756,18 +758,21 @@ namespace polyfem
 				std::array<std::array<double, 4>, 3> h_knots;
 				std::array<std::array<double, 4>, 3> v_knots;
 
-				setup_knots_vectors(mesh_nodes, space, h_knots, v_knots);
+				setup_knots_vectors(*mesh_nodes, space, h_knots, v_knots);
 
 				// print_local_space(space);
 
 				basis_for_regular_quad(space, loc_nodes, h_knots, v_knots, b);
-				basis_for_irregulard_quad(e, mesh, mesh_nodes, space, loc_nodes, h_knots, v_knots, b);
+				basis_for_irregulard_quad(e, mesh, *mesh_nodes, space, loc_nodes, h_knots, v_knots, b);
 			}
 
 			std::set<int> edge_id;
 			std::set<int> vertex_id;
 
-			int n_bases = mesh_nodes.n_nodes();
+			// int n_bases = mesh_nodes.n_nodes();
+			int n_bases = mesh_nodes->n_nodes();
+			std::cout << "	mesh_nodes.n_nodes() = " << mesh_nodes->n_nodes() << std::endl;
+			std::cout << "	mesh_nodes.num_vertex_nodes() = " << mesh_nodes->num_vertex_nodes() << std::endl;
 
 			for (int e = 0; e < n_els; ++e)
 			{
@@ -840,7 +845,11 @@ namespace polyfem
 				setup_data_for_polygons(mesh, e, b, poly_edge_to_data);
 			}
 
-			return n_bases;
+			// std::cout << "	mesh_nodes.n_nodes() = " << mesh_nodes.n_nodes() << std::endl;
+			// std::cout << "	mesh_nodes.num_vertex_nodes() = " << mesh_nodes.num_vertex_nodes() << std::endl;
+
+			// return n_bases;
+			return std::make_tuple(n_bases, mesh_nodes);
 		}
 
 		void SplineBasis2d::fit_nodes(const Mesh2D &mesh, const int n_bases, std::vector<ElementBases> &gbases)

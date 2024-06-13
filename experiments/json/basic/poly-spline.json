@@ -1,6 +1,6 @@
 {
     "geometry": {
-        "mesh": "../mesh/CubeHexMesh.msh",
+        "mesh": "../../mesh/basic/CubeHexMesh.msh",
         "n_refs": 1
     },
 

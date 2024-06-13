@@ -245,7 +245,7 @@ namespace polyfem
 		if (args["space"]["basis_type"] == "Spline")
 		{
 			logger().warn("Node ordering disabled, it dosent work for splines!");
-			return;
+			// return;
 		}
 
 		if (disc_orders.maxCoeff() >= 4 || disc_orders.maxCoeff() != disc_orders.minCoeff())
@@ -272,6 +272,8 @@ namespace polyfem
 			return;
 		}
 
+		std::cout << "mesh_nodes->num_vertex_nodes() = " << mesh_nodes->num_vertex_nodes() << std::endl;
+		
 		const int num_vertex_nodes = mesh_nodes->num_vertex_nodes();
 		const int num_edge_nodes = mesh_nodes->num_edge_nodes();
 		const int num_face_nodes = mesh_nodes->num_face_nodes();
@@ -282,6 +284,8 @@ namespace polyfem
 		const long n_vertices = num_vertex_nodes;
 		const int num_in_primitives = n_vertices + mesh->n_edges() + mesh->n_faces() + mesh->n_cells();
 		const int num_primitives = mesh->n_vertices() + mesh->n_edges() + mesh->n_faces() + mesh->n_cells();
+
+		std::cout << "Checkpoint 1 for build_node_mapping" << std::endl;
 
 		igl::Timer timer;
 
@@ -303,9 +307,13 @@ namespace polyfem
 			in_primitive_to_primitive);
 		timer.stop();
 		logger().trace("Done (took {}s)", timer.getElapsedTime());
+		std::cout << "Checkpoint 2 for build_node_mapping" << std::endl;
+
+		std::cout << "Check in build_node_mapping(): in_node_to_node size = " << in_node_to_node.size() << std:: endl;
 
 		if (!ok)
 		{
+			std::cout << "Check: NOT OK -> in_node_to_node is resized to 0." << std:: endl;
 			in_node_to_node.resize(0);
 			in_primitive_to_primitive.resize(0);
 			return;
@@ -323,6 +331,8 @@ namespace polyfem
 			throw std::runtime_error("Invalid node ID!");
 		};
 
+		std::cout << "Checkpoint 3 for build_node_mapping" << std::endl;
+
 		logger().trace("Building primitive to node mapping...");
 		timer.start();
 		std::vector<std::vector<int>> primitive_to_nodes(num_primitives);
@@ -334,6 +344,7 @@ namespace polyfem
 			assert(node < num_nodes);
 			if (node >= 0)
 			{
+				std::cout << "	In primitive to node mapping: Check for i = " << i << std::endl;
 				int primitive = mesh_nodes->node_to_primitive_gid().at(node) + primitive_offset(i);
 				assert(primitive < num_primitives);
 				primitive_to_nodes[primitive].push_back(node);
@@ -343,6 +354,8 @@ namespace polyfem
 		assert(node_count == num_nodes);
 		timer.stop();
 		logger().trace("Done (took {}s)", timer.getElapsedTime());
+
+		std::cout << "Checkpoint 4 for build_node_mapping" << std::endl;
 
 		logger().trace("Combining mappings...");
 		timer.start();
@@ -381,6 +394,8 @@ namespace polyfem
 		}
 		timer.stop();
 		logger().trace("Done (took {}s)", timer.getElapsedTime());
+
+		std::cout << "Checkpoint 5 for build_node_mapping" << std::endl;
 	}
 
 	std::string State::formulation() const
@@ -581,6 +596,8 @@ namespace polyfem
 			return;
 		}
 
+		std::cout << "Check in build_basis(): in_node_to_node size = " << in_node_to_node.size() << std:: endl;
+
 		mesh->prepare_mesh();
 
 		bases.clear();
@@ -770,8 +787,11 @@ namespace polyfem
 				// 	n_bases = SplineBasis2d::build_bases(tmp_mesh, quadrature_order, geom_bases_, local_boundary, poly_edge_to_data);
 				// }
 
-				n_bases = basis::SplineBasis2d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
-
+				// n_bases = basis::SplineBasis2d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
+				std::tie(n_bases, mesh_nodes) = basis::SplineBasis2d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
+				std::cout << "Check for State.cpp - build_basis():" << std::endl;
+				std::cout << "	mesh_nodes->n_nodes() = " << mesh_nodes->n_nodes() << std::endl;
+				std::cout << "	mesh_nodes->num_vertex_nodes() = " << mesh_nodes->num_vertex_nodes() << std::endl;
 				// if (iso_parametric() && args["fit_nodes"])
 				// 	SplineBasis2d::fit_nodes(tmp_mesh, n_bases, bases);
 			}
@@ -903,6 +923,7 @@ namespace polyfem
 			logger().debug("Building node mapping...");
 			timer2.start();
 			build_node_mapping();
+			// std::cout << "Check: in_node_to_node size = " << in_node_to_node.size() << std:: endl;
 			problem->update_nodes(in_node_to_node);
 			mesh->update_nodes(in_node_to_node);
 			timer2.stop();
