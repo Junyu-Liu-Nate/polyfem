@@ -48,3 +48,36 @@ def save_mapping_to_hdf5(W, ordered_edges, ordered_faces, filename="mapping.hdf5
         weight_group.create_dataset('values', data=W_sparse.data, dtype=np.float64)  # Non-zero values from COO
 
     print(f"Data saved successfully in {filename}")
+
+### The util function from Zack's code
+def save_weights(path, W, n_fem_vertices, vertices=None, edges=None, faces=None):
+    """
+    Save a weight matrix.
+    Optionally: save the edge and/or face matricies
+    """
+    h5f = h5py.File(path, 'w')
+
+    # Convert W to a sparse matrix in COO format
+    W = sp.coo_matrix(W)
+
+    if sp.issparse(W):
+        # Saving as sparse matrix
+        W_coo = W.tocoo()
+        g = h5f.create_group('weight_triplets')
+        g.create_dataset('values', data=W_coo.data)
+        g.create_dataset('rows', data=W_coo.row)
+        g.create_dataset('cols', data=W_coo.col)
+        g.attrs['shape'] = W_coo.shape
+    else:
+        h5f.create_dataset('weights', data=W)
+
+    h5f.attrs["n_fem_vertices"] = n_fem_vertices
+
+    if vertices is not None:
+        h5f.create_dataset("ordered_vertices", data=vertices)
+    if edges is not None:
+        h5f.create_dataset("ordered_edges", data=edges)
+    if faces is not None:
+        h5f.create_dataset("ordered_faces", data=faces)
+
+    h5f.close()

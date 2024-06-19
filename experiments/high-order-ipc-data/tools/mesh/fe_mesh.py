@@ -32,13 +32,21 @@ class FEMesh:
 
         self.V = mesh.points
 
+        #################################
+        # self.order = 1  # Added to set Default order
+        # self.T = mesh.cells[cell_i].data if len(mesh.cells) > cell_i else mesh.cells[0].data
+        # self.initialize_mesh_attributes()
+        #################################
+
         assert(len(mesh.cells) > cell_i)
 
         for cell in mesh.cells:
             if cell.type == "triangle":
+                print('Check cell data')
                 self.T = cell.data
                 break
             elif "tetra" in cell.type:
+                print('check is tetra')
                 self.order = tetra_type_to_order[cell.type]
                 self.T = cell.data[:, gmsh_to_basis_order[self.order]]
                 break
@@ -55,6 +63,23 @@ class FEMesh:
         #     # TODO: Reorder the nodes to be [V; E; F; C] and set to input positions
         #     self.attach_higher_order_nodes(self.order)
 
+    ################################################################
+    def initialize_mesh_attributes(self):
+        # Calculate boundary edges
+        self.BE = igl.boundary_facets(self.T)
+        # Calculate full edges
+        self.E = igl.edges(self.T)
+        # Map boundary edges to full edges
+        self.BE2E = self.map_boundary_edges_to_edges()
+
+    def map_boundary_edges_to_edges(self):
+        # Create a dictionary to map full edges to their indices
+        edge_to_index = {tuple(sorted(e)): i for i, e in enumerate(self.E)}
+        # Map each boundary edge to its corresponding index in the full edge list
+        BE2E = np.array([edge_to_index[tuple(sorted(e))] for e in self.BE])
+        return BE2E
+    ################################################################
+    
     def dim(self):
         return self.V.shape[1]
 

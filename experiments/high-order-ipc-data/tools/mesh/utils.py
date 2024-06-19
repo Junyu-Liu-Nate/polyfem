@@ -9,12 +9,17 @@ def sorted_tuple(vals):
 
 
 def faces(T):
+    # print(T)
     BF = igl.boundary_facets(T)
     OF = igl.oriented_facets(T)  # boundary facets + duplicated interior faces
     assert((OF.shape[0] + BF.shape[0]) % 2 == 0)
     num_faces = (OF.shape[0] + BF.shape[0]) // 2
 
-    F = np.empty((num_faces, 3), dtype=int)
+    # F = np.empty((num_faces, 3), dtype=int)
+    ########################################################################
+    F = np.empty((num_faces, BF.shape[1]), dtype=int)  ### Adjust the shape to match BF
+    ########################################################################
+    # print(BF)
     F[:BF.shape[0]] = BF
     processed_faces = set([sorted_tuple(f) for f in BF])
     for f in OF:

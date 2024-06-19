@@ -1,6 +1,6 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad.obj",
+        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/2d-tri-coarse.obj",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 30
@@ -17,8 +17,8 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-upsample.obj",
-            "linear_map": "../../mesh/iga-ipc/2d-quad/2d-quad-map.hdf5"
+            "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/2d-tri-P1-collision-mesh.obj",
+            "linear_map": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/high-order-ipc-data/weights/higher_order/2d-tri-P1.hdf5"
         }
     },
     

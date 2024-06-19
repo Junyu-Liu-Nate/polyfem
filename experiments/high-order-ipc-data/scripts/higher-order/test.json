@@ -1,7 +1,7 @@
 {
     "common": "../common.json",
     "geometry": [{
-        "mesh": "../../meshes/2D/triangle_ref1.obj",
+        "mesh": "../../meshes/2D/triangle.obj",
         "transformation": {
             "scale": 0.04
         },
@@ -17,7 +17,7 @@
         }
     }],
     "space": {
-        "discr_order": 3,
+        "discr_order": 2,
         "advanced": {
             "bc_method": "sample"
         }
@@ -29,9 +29,8 @@
     "contact": {
         "dhat": 6.92820323e-05,
         "collision_mesh": {
-            "mesh": "../../meshes/2D/triangle_ref1-collision-mesh.obj",
-            "#linear_map": "../../weights/higher_order/triangle_ref1-P2.hdf5",
-            "linear_map": "../../weights/higher_order/triangle_ref1-P3.hdf5"
+            "mesh": "../../meshes/2D/triangle-collision-mesh.obj",
+            "linear_map": "../../weights/higher_order/triangle-P2.hdf5"
         }
     },
     "boundary_conditions": {

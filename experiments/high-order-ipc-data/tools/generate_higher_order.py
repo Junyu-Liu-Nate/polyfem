@@ -46,7 +46,7 @@ def build_collision_mesh(fe_mesh, div_per_edge):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('mesh', type=pathlib.Path)
-    parser.add_argument('-o,--order', dest="order",
+    parser.add_argument('-o', '--order', dest="order",
                         help="order of the displacement",
                         type=int, default=2, choices=range(1, 5))
     parser.add_argument('-m', dest="div_per_edge", type=int, default=10)
@@ -74,6 +74,9 @@ def main():
         fe_mesh.attach_higher_order_nodes(args.order)
 
     if args.collision_mesh is None:
+        print(f"Mesh Dimension: {fe_mesh.dim()}")
+        print(f"Number of Nodes: {fe_mesh.n_nodes()}")
+
         Phi, V_col, E_col, F_col, E_higher = build_collision_mesh(
             fe_mesh, args.div_per_edge)
 
@@ -82,10 +85,11 @@ def main():
         print(f"saving collision mesh to {out_coll_mesh}")
         write_obj(out_coll_mesh, V_col, E=E_col, F=F_col)
 
-        out_edges = (args.mesh.parent
-                     / f"{args.mesh.stem}-P{args.order}-higher-order-edges.txt")
-        print(f"saving higher order edges to {out_edges}")
-        np.savetxt(out_edges, E_higher, fmt='%d')
+        ### TODO: this does not work 2D, but works for 3D
+        # out_edges = (args.mesh.parent
+        #              / f"{args.mesh.stem}-P{args.order}-higher-order-edges.txt")
+        # print(f"saving higher order edges to {out_edges}")
+        # np.savetxt(out_edges, E_higher, fmt='%d')
 
         out_weight = (root_dir / "weights" / "higher_order" /
                       f"{args.mesh.stem}-P{args.order}.hdf5")
@@ -101,6 +105,7 @@ def main():
         # Phi = load_weights(out_weight)
 
     print(f"saving weights to {out_weight}")
+    # print(Phi)
     save_weights(
         out_weight, Phi, fe_mesh.n_vertices(), vertices=fe_mesh.in_vertex_ids,
         edges=fe_mesh.in_edges, faces=fe_mesh.in_faces)

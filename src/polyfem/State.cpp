@@ -245,7 +245,7 @@ namespace polyfem
 		if (args["space"]["basis_type"] == "Spline")
 		{
 			logger().warn("Node ordering disabled, it dosent work for splines!");
-			// return;
+			return;
 		}
 
 		if (disc_orders.maxCoeff() >= 4 || disc_orders.maxCoeff() != disc_orders.minCoeff())
@@ -325,9 +325,15 @@ namespace polyfem
 			else if (mesh_nodes->is_edge_node(node))
 				return mesh->n_vertices();
 			else if (mesh_nodes->is_face_node(node))
-				return mesh->n_vertices() + mesh->n_edges();
+				{
+					std::cout << "Check is_face_node." << std::endl;
+					return mesh->n_vertices() + mesh->n_edges();
+				}
 			else if (mesh_nodes->is_cell_node(node))
-				return mesh->n_vertices() + mesh->n_edges() + mesh->n_faces();
+				{
+					std::cout << "Check is_cell_node." << std::endl;
+					return mesh->n_vertices() + mesh->n_edges() + mesh->n_faces();
+				}
 			throw std::runtime_error("Invalid node ID!");
 		};
 
@@ -337,16 +343,53 @@ namespace polyfem
 		timer.start();
 		std::vector<std::vector<int>> primitive_to_nodes(num_primitives);
 		const std::vector<int> &grouped_nodes = mesh_nodes->primitive_to_node();
+		//************************************
+		std::cout << "num_primitives: " << num_primitives << std::endl;
+
+		std::cout << "mesh_nodes->primitive_to_node(): ";
+		for (int node : grouped_nodes) {
+			std::cout << node << " ";
+		}
+		std::cout << std::endl;
+
+		std::cout << "mesh_nodes->node_to_primitive_gid(): ";
+		for (int node : mesh_nodes->node_to_primitive_gid()) {
+			std::cout << node << " ";
+		}
+		std::cout << std::endl;
+		//************************************
 		int node_count = 0;
-		for (int i = 0; i < grouped_nodes.size(); i++)
-		{
+		// for (int i = 0; i < grouped_nodes.size(); i++)
+		// {
+		// 	int node = grouped_nodes[i];
+		// 	assert(node < num_nodes);
+		// 	if (node >= 0)
+		// 	{
+		// 		std::cout << "	In primitive to node mapping: Check for i = " << i << ", node = " << node << std::endl;
+		// 		int primitive = mesh_nodes->node_to_primitive_gid().at(node) + primitive_offset(i);
+		// 		assert(primitive < num_primitives);
+		// 		primitive_to_nodes[primitive].push_back(node);
+		// 		node_count++;
+		// 	}
+		// }
+		//***** Note: Below is explici debug version */
+		for (int i = 0; i < grouped_nodes.size(); i++) {
 			int node = grouped_nodes[i];
-			assert(node < num_nodes);
-			if (node >= 0)
-			{
-				std::cout << "	In primitive to node mapping: Check for i = " << i << std::endl;
-				int primitive = mesh_nodes->node_to_primitive_gid().at(node) + primitive_offset(i);
-				assert(primitive < num_primitives);
+			assert(node < num_nodes);  // Confirm node is within the range
+			if (node >= 0) {
+				std::cout << "In primitive to node mapping: Check for i = " << i << ", node = " << node << std::endl;
+				if (node >= mesh_nodes->node_to_primitive_gid().size()) {
+					std::cerr << "Error: node index " << node << " is out of bounds for node_to_primitive_gid with size " << mesh_nodes->node_to_primitive_gid().size() << std::endl;
+					continue;  // Skip this iteration to avoid crashing
+				}
+				int offset = primitive_offset(i);  // Log the offset to check its validity
+				std::cout << "Offset for i = " << i << " is " << offset << std::endl;
+				int primitive = mesh_nodes->node_to_primitive_gid().at(node) + offset;
+				if (primitive >= num_primitives) {
+					std::cerr << "Error: Primitive index calculated as " << primitive << " exceeds maximum allowed index " << num_primitives - 1 << std::endl;
+					continue;  // Skip this iteration to avoid crashing
+				}
+				assert(primitive < num_primitives);  // Ensure primitive is within the range
 				primitive_to_nodes[primitive].push_back(node);
 				node_count++;
 			}
