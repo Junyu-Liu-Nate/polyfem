@@ -1,9 +1,24 @@
 {
+    "geometry": [{
+        "mesh": "../../mesh/iga-ipc/3d-hex/3d-hex.msh",
+        "transformation": {
+            "translation": [0, 3, 0]
+        },
+        "volume_selection": 1
+    },{
+        "mesh": "../../mesh/iga-ipc/plane.obj",
+        "is_obstacle": true
+    }],
+    
     "contact": {
         "enabled": true,
         "dhat": 1e-3,
         "friction_coefficient": 0.1,
-        "epsv": 1e-3
+        "epsv": 1e-3,
+        "collision_mesh": {
+            "mesh": "../../mesh/iga-ipc/3d-hex/3d-hex-collison.obj",
+            "linear_map": "../../mesh/iga-ipc/3d-hex/3d-hex-map.hdf5"
+        }
     },
     "time": {
         "integrator": "ImplicitEuler",
@@ -11,7 +26,7 @@
         "dt": 0.025
     },
     "space": {
-        "discr_order": 2,
+        "discr_order": 1,
         "basis_type": "Spline",
         "advanced": {
             "bc_method": "sample"
@@ -52,16 +67,5 @@
             },
             "vismesh_rel_area": 1e7
         }
-    },
-
-    "geometry": [{
-        "mesh": "../../mesh/basic/hexcube.msh",
-        "transformation": {
-            "translation": [0, 3, 0]
-        },
-        "volume_selection": 1
-    },{
-        "mesh": "../../mesh/iga-ipc/plane.obj",
-        "is_obstacle": true
-    }]
+    }
 }

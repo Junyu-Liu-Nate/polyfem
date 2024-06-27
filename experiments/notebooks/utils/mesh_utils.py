@@ -120,3 +120,51 @@ def quad_to_triangle_mesh(vertices, quad_faces):
     ordered_edges = np.array(list(edges), dtype=np.int64)  # Convert set to a sorted numpy array
 
     return ordered_edges, ordered_triangle_faces
+
+
+def hex_to_triangle_mesh(vertices, hex_faces):
+    """
+    Convert a hexahedral mesh (each face is a quad) to a triangle mesh,
+    and return both the triangular faces and the unique edges.
+
+    Parameters:
+    vertices : np.array
+        Array of vertices, where each row represents a vertex.
+    hex_faces : np.array
+        Array of hex faces, where each row contains four indices into the vertices array for each face.
+
+    Returns:
+    triangle_faces : np.array
+        Array of triangular faces, where each row contains three indices into the vertices array.
+    edges : np.array
+        Array of unique edges, where each row contains two indices.
+    """
+    triangle_faces = []
+    edges = set()  # Use a set to prevent duplicate edges
+
+    for face in hex_faces:
+        # Ensure the face has exactly four vertices
+        if len(face) != 4:
+            raise ValueError("All faces in the input must be quadrilaterals with exactly four vertices.")
+
+        # Define two triangles for each quad
+        triangles = [
+            [face[0], face[1], face[2]],
+            [face[0], face[2], face[3]]
+        ]
+        triangle_faces.extend(triangles)
+
+        # Add edges for these triangles, ensure each edge is added once
+        # Use tuple(sorted()) to ensure that each edge is stored in a consistent order
+        for tri in triangles:
+            edges.update([
+                tuple(sorted([tri[0], tri[1]])),
+                tuple(sorted([tri[1], tri[2]])),
+                tuple(sorted([tri[2], tri[0]]))
+            ])
+
+    # Convert the list of triangle faces back to a numpy array for consistency
+    ordered_triangle_faces = np.array(triangle_faces, dtype=np.int64)
+    ordered_edges = np.array(list(edges), dtype=np.int64)  # Convert set to a sorted numpy array
+
+    return ordered_triangle_faces, ordered_edges

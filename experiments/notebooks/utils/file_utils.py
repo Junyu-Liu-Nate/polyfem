@@ -10,18 +10,55 @@ def save_mesh_to_obj(vertices, faces, filename="mesh.obj"):
     """ Save the mesh vertices and faces to a .obj file, adjusting for 1-based indexing in the .obj format.
     
     Parameters:
-    vertices (np.array): The mesh vertices.
+    vertices (np.array): The mesh vertices, which can be either 2D or 3D.
     faces (np.array): The mesh faces.
     filename (str): The name of the .obj file to save.
     """
     with open(filename, 'w') as file:
         file.write("# OBJ file\n")
         for vert in vertices:
-            file.write(f"v {vert[0]} {vert[1]} 0.0\n")  # Assuming the vertices are 2D, z-coordinate is set to 0.0
+            # Check if the vertices are 2D or 3D and write accordingly
+            if len(vert) == 2:
+                file.write(f"v {vert[0]} {vert[1]} 0.0\n")  # Assume z = 0 for 2D vertices
+            elif len(vert) == 3:
+                file.write(f"v {vert[0]} {vert[1]} {vert[2]}\n")  # Write all 3 coordinates for 3D vertices
+            else:
+                raise ValueError("Vertices should be either 2D or 3D")
+                
         for face in faces:
             # Increment each index in the face by 1 for OBJ 1-based indexing
             face_str = ' '.join(str(index + 1) for index in face)
             file.write(f"f {face_str}\n")
+
+def save_hex_mesh_to_msh(vertices, hexes, filename="hex_mesh.msh"):
+    """
+    Save a hexahedral mesh to a .msh file (Gmsh ASCII format version 2).
+
+    Parameters:
+    vertices (np.array): The mesh vertices, assumed to be 3D.
+    hexes (np.array): The hexahedral elements, where each row contains eight indices into the vertices array.
+    filename (str): The name of the file to save.
+    """
+    with open(filename, 'w') as file:
+        # Write the file header
+        file.write("$MeshFormat\n")
+        file.write("2.2 0 8\n")  # Version 2.2, file-type (0 ASCII), data-size
+        file.write("$EndMeshFormat\n")
+        
+        # Write the vertices section
+        file.write("$Nodes\n")
+        file.write(f"{len(vertices)}\n")  # Number of vertices
+        for index, vert in enumerate(vertices, start=1):  # Gmsh uses 1-based index
+            file.write(f"{index} {vert[0]} {vert[1]} {vert[2]}\n")
+        file.write("$EndNodes\n")
+        
+        # Write the elements section
+        file.write("$Elements\n")
+        file.write(f"{len(hexes)}\n")  # Number of hex elements
+        for index, hex in enumerate(hexes, start=1):  # Gmsh uses 1-based index
+            # Element-number, element-type (5 for hexahedra), number-of-tags, tags, node-indices
+            file.write(f"{index} 5 2 0 0 " + " ".join(str(i+1) for i in hex) + "\n")
+        file.write("$EndElements\n")
 
 #%% Save mapping as .hdf5 format
 def save_mapping_to_hdf5(W, ordered_edges, ordered_faces, filename="mapping.hdf5"):

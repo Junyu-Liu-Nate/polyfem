@@ -82,3 +82,51 @@ def flatten_tensor_product(basis_dict):
         flat_array[i, j] = value
 
     return flat_array.flatten()
+
+### 3D cases
+#%% 3D Linear Tensor Product
+def tensor_product_linear_3d(u, v, w):
+    """Compute the tensor product of 1D linear B-spline basis functions for 3D space."""
+    basis_functions_1d_u = [L_0(u), L_1(u)]
+    basis_functions_1d_v = [L_0(v), L_1(v)]
+    basis_functions_1d_w = [L_0(w), L_1(w)]
+    basis_functions_3d = {}
+    for I, fu in enumerate(basis_functions_1d_u):
+        for J, fv in enumerate(basis_functions_1d_v):
+            for K, fw in enumerate(basis_functions_1d_w):
+                basis_functions_3d[(I, J, K)] = fu * fv * fw
+    return basis_functions_3d
+
+#%% 3D Quadratic Tensor Product
+def tensor_product_quadratic_3d(u, v, w):
+    """Compute the tensor product of 1D quadratic B-spline basis functions for 3D space."""
+    basis_functions_1d_u = [Q_0(u), Q_1(u), Q_2(u)]
+    basis_functions_1d_v = [Q_0(v), Q_1(v), Q_2(v)]
+    basis_functions_1d_w = [Q_0(w), Q_1(w), Q_2(w)]
+    basis_functions_3d = {}
+    for I, fu in enumerate(basis_functions_1d_u):
+        for J, fv in enumerate(basis_functions_1d_v):
+            for K, fw in enumerate(basis_functions_1d_w):
+                basis_functions_3d[(I, J, K)] = fu * fv * fw
+    return basis_functions_3d
+
+### Flatten function extended to handle 3D tensor product
+def flatten_tensor_product_3d(basis_dict):
+    """
+    Flatten the output of a tensor product of 3D B-spline basis functions into a numpy array.
+
+    Parameters:
+    basis_dict : dict
+        Dictionary with tuple keys (I, J, K) and values as the product of basis functions.
+
+    Returns:
+    flat_array : np.array
+        Flat array containing the tensor product values.
+    """
+    size = int(len(basis_dict) ** (1/3))  # Since it's 3D, we take the cube root of the number of elements
+    flat_array = np.zeros((size, size, size))
+
+    for (I, J, K), value in basis_dict.items():
+        flat_array[I, J, K] = value
+
+    return flat_array.flatten()
