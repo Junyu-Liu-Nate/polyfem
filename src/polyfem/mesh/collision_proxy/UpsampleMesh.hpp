@@ -42,6 +42,15 @@ namespace polyfem::mesh
 		std::vector<Eigen::Triplet<double>> &W_out,
 		const double epsilon = 1e-5);
 
+	void stitch_line_mesh(
+		const Eigen::MatrixXd &V,  // Input vertices
+		const Eigen::MatrixXi &E,  // Input edges
+		const std::vector<Eigen::Triplet<double>> &W,  // Input weights
+		Eigen::MatrixXd &V_out,  // Output vertices (duplicate vertices removed)
+		Eigen::MatrixXi &E_out,  // Output edges (updated to use V_out)
+		std::vector<Eigen::Triplet<double>> &W_out,  // Output weights (updated)
+		double epsilon = 1e-5);  // Tolerance for duplicate vertices
+
 	/// @brief Compute the maximum edge length of a triangle mesh (V, F)
 	/// @param V vertices
 	/// @param F triangular faces
@@ -55,6 +64,10 @@ namespace polyfem::mesh
 	/// @param[out] F Faces of the regular grid
 	void regular_grid_triangle_barycentric_coordinates(
 		const int n, Eigen::MatrixXd &V, Eigen::MatrixXi &F);
+
+	//-------------------- Added for hex --------------------//
+	void regular_grid_quadrilateral_barycentric_coordinates(
+		int n, Eigen::MatrixXd &UV, Eigen::MatrixXi &F_local);
 
 	/// @brief Tessilate a triangle mesh (V, F) with regular grids of triangles of maximum edge length
 	/// @param V vertices

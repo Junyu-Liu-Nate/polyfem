@@ -43,6 +43,32 @@ namespace polyfem::mesh
 		std::vector<Eigen::Triplet<double>> &displacement_map,
 		const CollisionProxyTessellation tessellation = CollisionProxyTessellation::REGULAR);
 
+	//------ For 2D spline
+	void build_collision_proxy_quad(
+		const std::vector<basis::ElementBases> &bases,
+		const std::vector<basis::ElementBases> &geom_bases,
+		const std::vector<LocalBoundary> &total_local_boundary,
+		const int n_bases,
+		const int dim,
+		const double max_edge_length,
+		Eigen::MatrixXd &proxy_vertices,
+		Eigen::MatrixXi &proxy_edges,
+		std::vector<Eigen::Triplet<double>> &displacement_map_entries,
+		const CollisionProxyTessellation tessellation = CollisionProxyTessellation::REGULAR);
+
+	//------ For 3D spline
+	void build_collision_proxy_hex(
+		const std::vector<basis::ElementBases> &bases,
+		const std::vector<basis::ElementBases> &geom_bases,
+		const std::vector<LocalBoundary> &total_local_boundary,
+		const int n_bases,
+		const int dim,
+		const double max_edge_length,
+		Eigen::MatrixXd &proxy_vertices,
+		Eigen::MatrixXi &proxy_faces,
+		std::vector<Eigen::Triplet<double>> &displacement_map_entries,
+		const CollisionProxyTessellation tessellation = CollisionProxyTessellation::REGULAR);
+
 	/// @brief Build a collision proxy displacement map for a given mesh and proxy mesh.
 	/// @param[in] bases Bases for elements
 	/// @param[in] geom_bases Geometry bases for elements

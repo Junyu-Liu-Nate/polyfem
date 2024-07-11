@@ -1,9 +1,9 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad.obj",
+        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-sub3.obj",
         "transformation": {
             "translation": [0, 5, 0],
-            "rotation": 30
+            "rotation": 0
         },
         "volume_selection": 1
     },{
@@ -17,8 +17,7 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-upsample.obj",
-            "linear_map": "../../mesh/iga-ipc/2d-quad/2d-quad-map.hdf5"
+            "max_edge_length": 0.2
         }
     },
     
@@ -28,8 +27,8 @@
         "dt": 0.025
     },
     "space": {
-        "discr_order": 1,
-        "basis_type": "Lagrange",
+        "discr_order": 2,
+        "basis_type": "Spline",
         "advanced": {
             "bc_method": "sample"
         }

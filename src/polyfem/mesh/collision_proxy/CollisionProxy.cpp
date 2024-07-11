@@ -53,6 +53,86 @@ namespace polyfem::mesh
 			return uvw;
 		}
 
+		Eigen::MatrixXd uv_to_uvw_edge(const Eigen::MatrixXd &u, const int local_eid) {
+			assert(u.cols() == 1);  // Ensure u is a single column matrix representing parameterization along the edge.
+
+			Eigen::MatrixXd uvw = Eigen::MatrixXd::Zero(u.rows(), 3);
+			// Assuming uvw maps a 1D line to a 3D edge within the element's geometry
+			switch (local_eid) {
+			case 0:
+				// Mapping edge 0 from vertex 0 to vertex 1
+				uvw.col(0) = u;  // Parameter along the edge
+				break;
+			case 1:
+				// Mapping edge 1 from vertex 1 to vertex 2
+				uvw.col(1) = u;  // Parameter along the edge
+				break;
+			case 2:
+				// Mapping edge 2 from vertex 2 to vertex 3
+				uvw.col(2) = u;  // Parameter along the edge
+				break;
+			case 3:
+				// Mapping edge 3 from vertex 3 to vertex 0
+				uvw.col(0) = 1 - u.array();  // Inverse parameter along the edge
+				uvw.col(2) = u;  // Parameter along the edge
+				break;
+			default:
+				log_and_throw_error("uv_to_uvw_edge(): unknown local_eid={}", local_eid);
+			}
+			return uvw;
+		}
+
+		//---------- Added for hex ----------//
+		//TODO: Need to define fave order
+		Eigen::MatrixXd uv_to_uvw_hex(const Eigen::MatrixXd &uv, const int local_fid)
+		{
+			assert(uv.cols() == 2);
+
+			Eigen::MatrixXd uvw = Eigen::MatrixXd::Zero(uv.rows(), 3);
+			switch (local_fid)
+			{
+			case 0:
+				// Bottom face (Assuming z constant at minimum)
+				uvw.col(0) = uv.col(0);
+				uvw.col(1) = uv.col(1);
+				uvw.col(2) = Eigen::VectorXd::Zero(uv.rows());
+				break;
+			case 1:
+				// Top face (Assuming z constant at maximum)
+				uvw.col(0) = uv.col(0);
+				uvw.col(1) = uv.col(1);
+				uvw.col(2) = Eigen::VectorXd::Ones(uv.rows());
+				break;
+			case 2:
+				// Front face (Assuming y constant at minimum)
+				uvw.col(0) = uv.col(0);
+				uvw.col(1) = Eigen::VectorXd::Zero(uv.rows());
+				uvw.col(2) = uv.col(1);
+				break;
+			case 3:
+				// Back face (Assuming y constant at maximum)
+				uvw.col(0) = uv.col(0);
+				uvw.col(1) = Eigen::VectorXd::Ones(uv.rows());
+				uvw.col(2) = uv.col(1);
+				break;
+			case 4:
+				// Left face (Assuming x constant at minimum)
+				uvw.col(0) = Eigen::VectorXd::Zero(uv.rows());
+				uvw.col(1) = uv.col(0);
+				uvw.col(2) = uv.col(1);
+				break;
+			case 5:
+				// Right face (Assuming x constant at maximum)
+				uvw.col(0) = Eigen::VectorXd::Ones(uv.rows());
+				uvw.col(1) = uv.col(0);
+				uvw.col(2) = uv.col(1);
+				break;
+			default:
+				log_and_throw_error("build_collision_proxy(): unknown local_fid={}", local_fid);
+			}
+			return uvw;
+		}
+
 		Eigen::MatrixXd extract_face_vertices(
 			const basis::ElementBases &element, const int local_fid)
 		{
@@ -65,6 +145,27 @@ namespace polyfem::mesh
 
 			Eigen::MatrixXd V;
 			element.eval_geom_mapping(UVW, V);
+
+			return V;
+		}
+
+		Eigen::MatrixXd extract_edge_vertices(
+			const basis::ElementBases &element, const int local_eid)
+		{
+			Eigen::MatrixXd UV(2, 1);
+			// Linear interpolation between two edge points:
+			// At u = 0 (start of the edge)
+			// At u = 1 (end of the edge)
+			UV.row(0) << 0;  // u = 0
+			UV.row(1) << 1;  // u = 1
+
+			const Eigen::MatrixXd UVW = uv_to_uvw_edge(UV, local_eid);
+
+			Eigen::MatrixXd V;
+			element.eval_geom_mapping(UVW, V);
+
+			// Ensures that V has two columns, representing the start and end vertices of the edge
+			assert(V.cols() == 2 && "The geom_mapping should return two points for an edge");
 
 			return V;
 		}
@@ -159,6 +260,209 @@ namespace polyfem::mesh
 		stitch_mesh(
 			Eigen::Map<RowMajorMatrixX<double>>(proxy_vertices_list.data(), proxy_vertices_list.size() / dim, dim),
 			Eigen::Map<RowMajorMatrixX<int>>(proxy_faces_list.data(), proxy_faces_list.size() / dim, dim),
+			displacement_map_entries_tmp,
+			proxy_vertices, proxy_faces, displacement_map_entries);
+	}
+
+	//--------------- Added for 2D iga ---------------//
+	//TODO: The upsampling is messed up
+	void build_collision_proxy_quad(
+		const std::vector<basis::ElementBases> &bases,
+		const std::vector<basis::ElementBases> &geom_bases,
+		const std::vector<LocalBoundary> &total_local_boundary,
+		const int n_bases,
+		const int dim,
+		const double max_edge_length,
+		Eigen::MatrixXd &proxy_vertices,
+		Eigen::MatrixXi &proxy_edges,
+		std::vector<Eigen::Triplet<double>> &displacement_map_entries,
+		const CollisionProxyTessellation tessellation) 
+	{
+		std::vector<double> proxy_vertices_list;
+		std::vector<int> proxy_edges_list;
+		std::vector<Eigen::Triplet<double>> displacement_map_entries_tmp;
+
+		Eigen::MatrixXd UV;
+		Eigen::VectorXi E_local;
+		if (tessellation == CollisionProxyTessellation::REGULAR)
+		{
+			// Define UV as linear interpolation between 0 and 1 with steps based on max_edge_length
+			int n_segments = std::ceil(1.0 / max_edge_length);
+			UV.resize(n_segments + 1, 1);
+			for (int i = 0; i <= n_segments; ++i) {
+				UV(i, 0) = double(i) / n_segments;
+			}
+			E_local.resize(2, n_segments);
+			for (int i = 0; i < n_segments; ++i) {
+				E_local.col(i) << i, i + 1;
+			}
+		}
+		std::cout << "UV:" << UV << std::endl;
+		std::cout << "E_local:" << E_local << std::endl;
+
+		for (const LocalBoundary &local_boundary : total_local_boundary)
+		{
+			if (local_boundary.type() != BoundaryType::QUAD_LINE)
+				log_and_throw_error("build_collision_proxy() is only implemented for lines in a quad mesh context!");
+
+			const basis::ElementBases &elm = bases[local_boundary.element_id()];
+			const basis::ElementBases &g = geom_bases[local_boundary.element_id()];
+			for (int fi = 0; fi < local_boundary.size(); fi++)
+			{
+				const int local_fid = local_boundary.local_primitive_id(fi);
+
+				Eigen::MatrixXd V_local;
+				g.eval_geom_mapping(UV, V_local);
+				assert(V_local.rows() == UV.rows());
+
+				const int offset = proxy_vertices_list.size() / dim;
+				for (const double x : V_local.reshaped<Eigen::RowMajor>())
+					proxy_vertices_list.push_back(x);
+				for (const int i : E_local.reshaped<Eigen::RowMajor>())
+					proxy_edges_list.push_back(i + offset);
+
+				for (const basis::Basis &basis : elm.bases)
+				{
+					assert(basis.global().size() == 1);
+					const int basis_id = basis.global()[0].index;
+
+					const Eigen::MatrixXd basis_values = basis(UV);
+
+					for (int i = 0; i < basis_values.size(); i++)
+					{
+						displacement_map_entries_tmp.emplace_back(
+							offset + i, basis_id, basis_values(i));
+					}
+				}
+			}
+		}
+
+		// Print proxy_vertices_list
+		std::cout << "proxy_vertices_list:" << std::endl;
+		for (const auto& value : proxy_vertices_list) {
+			std::cout << value << std::endl;
+		}
+
+		// Print proxy_edges_list
+		std::cout << "proxy_edges_list:" << std::endl;
+		for (const auto& edge : proxy_edges_list) {
+			std::cout << edge << std::endl;
+		}
+
+		// Print displacement_map_entries_tmp
+		std::cout << "displacement_map_entries_tmp:" << std::endl;
+		for (const auto& triplet : displacement_map_entries_tmp) {
+			std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
+		}
+		
+		// stitch collision proxy together
+		//TODO: This is implemented for triangle mesh only!
+		stitch_mesh(
+			Eigen::Map<RowMajorMatrixX<double>>(proxy_vertices_list.data(), proxy_vertices_list.size() / dim, dim),
+			Eigen::Map<RowMajorMatrixX<int>>(proxy_edges_list.data(), proxy_edges_list.size() / 2, 2),
+			displacement_map_entries_tmp,
+			proxy_vertices, proxy_edges, displacement_map_entries);
+		// stitch_line_mesh(
+		// 	Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(
+		// 		proxy_vertices_list.data(), proxy_vertices_list.size() / dim, dim),
+		// 	Eigen::Map<Eigen::MatrixXi>(
+		// 		proxy_edges_list.data(), proxy_edges_list.size() / 2, 2),
+		// 	displacement_map_entries_tmp,
+		// 	proxy_vertices,
+		// 	proxy_edges,
+		// 	displacement_map_entries,
+		// 	1e-5  // Tolerance for vertex deduplication
+		// );
+
+		std::cout << proxy_vertices << std::endl;
+		std::cout << proxy_edges << std::endl;
+		// for (const auto& triplet : displacement_map_entries) {
+		// 	std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
+		// }
+		exit(EXIT_SUCCESS); // Used for debug
+	}
+
+	//--------------- Added for 3D iga ---------------//
+	void build_collision_proxy_hex(
+		const std::vector<basis::ElementBases> &bases,
+		const std::vector<basis::ElementBases> &geom_bases,
+		const std::vector<LocalBoundary> &total_local_boundary,
+		const int n_bases,
+		const int dim,
+		const double max_edge_length,
+		Eigen::MatrixXd &proxy_vertices,
+		Eigen::MatrixXi &proxy_faces,
+		std::vector<Eigen::Triplet<double>> &displacement_map_entries,
+		const CollisionProxyTessellation tessellation)
+	{
+		// std::cout << "Check in build_collision_proxy_hex" << std::endl;
+		
+		std::vector<double> proxy_vertices_list;
+		std::vector<int> proxy_faces_list;
+		std::vector<Eigen::Triplet<double>> displacement_map_entries_tmp;
+
+		Eigen::MatrixXd UV;
+		Eigen::MatrixXi F_local;
+		if (tessellation == CollisionProxyTessellation::REGULAR)
+		{
+			// Adjust tessellation to use quadrilaterals instead of triangles
+			regular_grid_quadrilateral_barycentric_coordinates(/*n=*/10, UV, F_local);
+		}
+
+		for (const LocalBoundary &local_boundary : total_local_boundary)
+		{
+			if (local_boundary.type() != BoundaryType::QUAD)
+				log_and_throw_error("build_collision_proxy() is currently implemented for hexahedral elements!");
+
+			const basis::ElementBases elm = bases[local_boundary.element_id()];
+			const basis::ElementBases g = geom_bases[local_boundary.element_id()];
+			for (int fi = 0; fi < local_boundary.size(); fi++)
+			{
+				const int local_fid = local_boundary.local_primitive_id(fi);
+				//TODO: Check how does the local_primitive_id for hex elements are defined
+
+				// if (tessellation == CollisionProxyTessellation::IRREGULAR)
+				// {
+				// 	const Eigen::MatrixXd node_positions = extract_face_vertices(g, local_fid);
+				// 	irregular_quadrilateral_barycentric_coordinates(
+				// 		node_positions.row(0), node_positions.row(1), node_positions.row(2), node_positions.row(3),
+				// 		max_edge_length, UV, F_local);
+				// }
+
+				Eigen::MatrixXd UVW = uv_to_uvw_hex(UV, local_fid);
+
+				Eigen::MatrixXd V_local;
+				g.eval_geom_mapping(UVW, V_local);
+				assert(V_local.rows() == UV.rows());
+
+				const int offset = proxy_vertices_list.size() / dim;
+				for (const double x : V_local.reshaped<Eigen::RowMajor>())
+					proxy_vertices_list.push_back(x);
+				for (const int i : F_local.reshaped<Eigen::RowMajor>())
+					proxy_faces_list.push_back(i + offset);
+
+				for (const basis::Basis &basis : elm.bases)
+				{
+					assert(basis.global().size() == 1);
+					const int basis_id = basis.global()[0].index;
+
+					// const Eigen::MatrixXd basis_values = basis.eval(UVW);
+					Eigen::MatrixXd basis_values;
+					basis.eval_basis(UVW, basis_values);
+
+					for (int i = 0; i < basis_values.size(); i++)
+					{
+						displacement_map_entries_tmp.emplace_back(
+							offset + i, basis_id, basis_values(i));
+					}
+				}
+			}
+		}
+		
+		// Final stitching of the mesh
+		stitch_mesh(
+			Eigen::Map<Eigen::MatrixXd>(proxy_vertices_list.data(), proxy_vertices_list.size() / dim, dim),
+			Eigen::Map<Eigen::MatrixXi>(proxy_faces_list.data(), proxy_faces_list.size() / 3, 3),
 			displacement_map_entries_tmp,
 			proxy_vertices, proxy_faces, displacement_map_entries);
 	}

@@ -374,7 +374,7 @@ namespace polyfem
 		// 		node_count++;
 		// 	}
 		// }
-		//***** Note: Below is explici debug version */
+		//***** Note: Below is explicit debug version */
 		for (int i = 0; i < grouped_nodes.size(); i++) {
 			int node = grouped_nodes[i];
 			assert(node < num_nodes);  // Confirm node is within the range
@@ -974,7 +974,7 @@ namespace polyfem
 			logger().debug("Building node mapping...");
 			timer2.start();
 			build_node_mapping();
-			// std::cout << "Check: in_node_to_node size = " << in_node_to_node.size() << std:: endl;
+			std::cout << "Check: in_node_to_node size = " << in_node_to_node.size() << std:: endl;
 			problem->update_nodes(in_node_to_node);
 			mesh->update_nodes(in_node_to_node);
 			timer2.stop();
@@ -1501,6 +1501,7 @@ namespace polyfem
 		if (args.contains("/contact/collision_mesh"_json_pointer)
 			&& args.at("/contact/collision_mesh/enabled"_json_pointer).get<bool>())
 		{
+			// Note: This is the case where collision mesh is explicitly specified (with mapping)
 			const json collision_mesh_args = args.at("/contact/collision_mesh"_json_pointer);
 			if (collision_mesh_args.contains("linear_map"))
 			{
@@ -1519,17 +1520,40 @@ namespace polyfem
 			}
 			else
 			{
+				// Note: This is the case where max edge length is explicitly specified
 				assert(collision_mesh_args.contains("max_edge_length"));
 				logger().debug(
 					"Building collision proxy with max edge length={} ...",
 					collision_mesh_args["max_edge_length"].get<double>());
 				igl::Timer timer;
 				timer.start();
-				build_collision_proxy(
-					bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
-					collision_mesh_args["max_edge_length"], collision_vertices,
-					collision_triangles, displacement_map_entries,
-					collision_mesh_args["tessellation_type"]);
+
+				//-------------- Added for iga --------------//
+				if (args["space"]["basis_type"] == "Spline") {
+					if (!mesh.is_volume()) {
+						build_collision_proxy_quad(
+							bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
+							collision_mesh_args["max_edge_length"], collision_vertices,
+							collision_edges, displacement_map_entries,
+							collision_mesh_args["tessellation_type"]);
+					}
+					else {
+						build_collision_proxy_hex(
+							bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
+							collision_mesh_args["max_edge_length"], collision_vertices,
+							collision_triangles, displacement_map_entries,
+							collision_mesh_args["tessellation_type"]);
+					}
+					
+				}
+				else {
+					build_collision_proxy(
+						bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
+						collision_mesh_args["max_edge_length"], collision_vertices,
+						collision_triangles, displacement_map_entries,
+						collision_mesh_args["tessellation_type"]);
+				}
+				
 				if (collision_triangles.size())
 					igl::edges(collision_triangles, collision_edges);
 				timer.stop();
@@ -1542,6 +1566,7 @@ namespace polyfem
 		}
 		else
 		{
+			std::cout << "Check: extracting boundary mesh" << std::endl;
 			io::OutGeometryData::extract_boundary_mesh(
 				mesh, n_bases - obstacle.n_vertices(), bases, total_local_boundary,
 				collision_vertices, collision_edges, collision_triangles, displacement_map_entries);

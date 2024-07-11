@@ -84,6 +84,53 @@ namespace polyfem::mesh
 		}
 	}
 
+	//------ Added for 2d 
+	void stitch_line_mesh(
+		const Eigen::MatrixXd &V,  // Input vertices
+		const Eigen::MatrixXi &E,  // Input edges
+		const std::vector<Eigen::Triplet<double>> &W,  // Input weights
+		Eigen::MatrixXd &V_out,  // Output vertices (duplicate vertices removed)
+		Eigen::MatrixXi &E_out,  // Output edges (updated to use V_out)
+		std::vector<Eigen::Triplet<double>> &W_out,  // Output weights (updated)
+		double epsilon)  // Tolerance for duplicate vertices
+	{
+		std::vector<int> vertex_map(V.rows(), -1);
+		std::vector<int> new_index;
+		V_out.resize(0, V.cols());
+		int curr_index = 0;
+
+		// Deduplicate vertices
+		for (int i = 0; i < V.rows(); ++i) {
+			bool found_duplicate = false;
+			for (int j = 0; j < V_out.rows(); ++j) {
+				if ((V.row(i) - V_out.row(j)).norm() < epsilon) {
+					vertex_map[i] = j;
+					found_duplicate = true;
+					break;
+				}
+			}
+			if (!found_duplicate) {
+				vertex_map[i] = curr_index++;
+				V_out.conservativeResize(V_out.rows() + 1, Eigen::NoChange);
+				V_out.row(V_out.rows() - 1) = V.row(i);
+			}
+		}
+
+		// Update edges
+		E_out.resize(E.rows(), E.cols());
+		for (int i = 0; i < E.rows(); ++i) {
+			for (int j = 0; j < E.cols(); ++j) {
+				E_out(i, j) = vertex_map[E(i, j)];
+			}
+		}
+
+		// Update weights
+		for (const auto &weight : W) {
+			int new_row = vertex_map[weight.row()];
+			W_out.push_back(Eigen::Triplet<double>(new_row, weight.col(), weight.value()));
+		}
+	}
+
 	double max_edge_length(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F)
 	{
 		double max_edge_length = 0;
@@ -173,6 +220,35 @@ namespace polyfem::mesh
 		}
 
 		stitch_mesh(V_tmp, F_tmp, V_out, F_out);
+	}
+
+	//----------- Added for hex -----------//
+	void regular_grid_quadrilateral_barycentric_coordinates(
+		int n, Eigen::MatrixXd &UV, Eigen::MatrixXi &F_local) {
+		int num_points_per_side = std::sqrt(n);
+		UV.resize(num_points_per_side * num_points_per_side, 2);
+		F_local.resize((num_points_per_side - 1) * (num_points_per_side - 1), 4);
+
+		double step = 1.0 / (num_points_per_side - 1);
+		int vertex_idx = 0, face_idx = 0;
+		for (int i = 0; i < num_points_per_side; ++i) {
+			for (int j = 0; j < num_points_per_side; ++j) {
+				UV(vertex_idx, 0) = j * step;
+				UV(vertex_idx, 1) = i * step;
+				vertex_idx++;
+			}
+		}
+
+		for (int i = 0; i < num_points_per_side - 1; ++i) {
+			for (int j = 0; j < num_points_per_side - 1; ++j) {
+				int idx = i * num_points_per_side + j;
+				F_local(face_idx, 0) = idx;
+				F_local(face_idx, 1) = idx + 1;
+				F_local(face_idx, 2) = idx + num_points_per_side + 1;
+				F_local(face_idx, 3) = idx + num_points_per_side;
+				face_idx++;
+			}
+		}
 	}
 
 	// ------------------------------------------------------------------------

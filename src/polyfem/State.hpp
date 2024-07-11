@@ -172,6 +172,7 @@ namespace polyfem
 		/// FE pressure bases for mixed elements, the size is #elements
 		std::vector<basis::ElementBases> pressure_bases;
 		/// Geometric mapping bases, if the elements are isoparametric, this list is empty
+		//TODO: Why is this empty for isoparametric elements? Need implement?
 		std::vector<basis::ElementBases> geom_bases_;
 
 		/// number of bases

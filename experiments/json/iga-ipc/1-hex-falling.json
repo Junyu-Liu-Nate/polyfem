@@ -16,8 +16,7 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "mesh": "../../mesh/iga-ipc/3d-hex/3d-hex-collison.obj",
-            "linear_map": "../../mesh/iga-ipc/3d-hex/3d-hex-map.hdf5"
+            "max_edge_length": 0.2
         }
     },
     "time": {

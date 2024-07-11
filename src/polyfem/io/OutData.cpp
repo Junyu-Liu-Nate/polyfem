@@ -143,6 +143,7 @@ namespace polyfem::io
 		}
 	} // namespace
 
+	// TODO: May need to modify this to directly upsample when extracting boundary (for IGA)
 	void OutGeometryData::extract_boundary_mesh(
 		const mesh::Mesh &mesh,
 		const int n_bases,
