@@ -8,5 +8,8 @@
 #               -o ../experiments/output/contact-3D-IGA/1-hex-falling/
 
 ###### Highers-Order-IPC
-./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/ipc/1-cube-falling.json \
-              -o ../experiments/output/contact-3D-higher-order/1-cube-falling/
+# ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/ipc/1-cube-falling.json \
+#               -o ../experiments/output/contact-3D-higher-order/1-cube-falling/
+
+./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/ipc/1-tet-falling.json \
+              -o ../experiments/output/contact-3D-higher-order/1-tet-falling/

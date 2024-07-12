@@ -1,6 +1,6 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-sub3.obj",
+        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/data/contact/meshes/3D/simple/tet/tet-corner.msh",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 0
@@ -17,7 +17,7 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "max_edge_length": 0.5
+            "max_edge_length": 0.3
         }
     },
     
@@ -28,7 +28,7 @@
     },
     "space": {
         "discr_order": 2,
-        "basis_type": "Spline",
+        "basis_type": "Lagrange",
         "advanced": {
             "bc_method": "sample"
         }
