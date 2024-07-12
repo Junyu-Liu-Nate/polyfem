@@ -104,6 +104,7 @@ namespace polyfem::mesh
 			bool found_duplicate = false;
 			for (int j = 0; j < V_out.rows(); ++j) {
 				if ((V.row(i) - V_out.row(j)).norm() < epsilon) {
+					std::cout << "Found duplicate" << std::endl;
 					vertex_map[i] = j;
 					found_duplicate = true;
 					break;

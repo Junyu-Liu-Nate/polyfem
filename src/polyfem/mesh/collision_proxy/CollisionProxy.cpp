@@ -236,7 +236,7 @@ namespace polyfem::mesh
 				Eigen::MatrixXd V_local;
 				g.eval_geom_mapping(UVW, V_local);
 				assert(V_local.rows() == UV.rows());
-				std::cout << "	fi: " << fi << ", V_local:" << V_local << std::endl;
+				// std::cout << "	fi: " << fi << ", V_local:" << V_local << std::endl;
 
 				const int offset = proxy_vertices_list.size() / dim;
 				for (const double x : V_local.reshaped<Eigen::RowMajor>())
@@ -315,7 +315,29 @@ namespace polyfem::mesh
 		file.close();
 	}
 
-	//TODO: The upsampling is messed up
+	bool areDisplacementMapsEqual(const std::vector<Eigen::Triplet<double>>& map1, const std::vector<Eigen::Triplet<double>>& map2) {
+		if (map1.size() != map2.size()) {
+			std::cout << "Different number of entries." << std::endl;
+			return false;
+		}
+
+		for (size_t i = 0; i < map1.size(); ++i) {
+			const Eigen::Triplet<double>& triplet1 = map1[i];
+			const Eigen::Triplet<double>& triplet2 = map2[i];
+
+			if (triplet1.row() != triplet2.row() ||
+				triplet1.col() != triplet2.col() ||
+				triplet1.value() != triplet2.value()) {
+				std::cout << "Mismatch found at index " << i << ": "
+						<< "(" << triplet1.row() << ", " << triplet1.col() << ", " << triplet1.value() << ") != "
+						<< "(" << triplet2.row() << ", " << triplet2.col() << ", " << triplet2.value() << ")" << std::endl;
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	void build_collision_proxy_quad(
 		const std::vector<basis::ElementBases> &bases,
 		const std::vector<basis::ElementBases> &geom_bases,
@@ -350,9 +372,9 @@ namespace polyfem::mesh
 				E_local(i, 1) = i + 1; // End vertex of edge i
 			}
 		}
-		std::cout << "U:" << U << std::endl;
-		std::cout << "E_local has " << E_local.rows() << " rows and " << E_local.cols() << " columns." << std::endl;
-		std::cout << "E_local:" << E_local << std::endl;
+		// std::cout << "U:" << U << std::endl;
+		// std::cout << "E_local has " << E_local.rows() << " rows and " << E_local.cols() << " columns." << std::endl;
+		// std::cout << "E_local:" << E_local << std::endl;
 
 		//--- Itetrate boundary elements
 		for (const LocalBoundary &local_boundary : total_local_boundary)
@@ -360,14 +382,15 @@ namespace polyfem::mesh
 			if (local_boundary.type() != BoundaryType::QUAD_LINE)
 				log_and_throw_error("build_collision_proxy() is only implemented for lines in a quad mesh context!");
 
-			const basis::ElementBases &elm = bases[local_boundary.element_id()];
-			const basis::ElementBases &g = geom_bases[local_boundary.element_id()];
+			const basis::ElementBases elm = bases[local_boundary.element_id()];
+			const basis::ElementBases g = geom_bases[local_boundary.element_id()];
 			for (int ei = 0; ei < local_boundary.size(); ei++)
 			{
 				const int local_eid = local_boundary.local_primitive_id(ei);
 				// std::cout << "	ei: " << ei << ", local_eid: " << local_eid << std::endl;
 
 				Eigen::MatrixXd UV = u_to_uv(U, local_eid);
+
 				Eigen::MatrixXd V_local;
 				g.eval_geom_mapping(UV, V_local);
 				assert(V_local.rows() == U.rows());
@@ -384,7 +407,7 @@ namespace polyfem::mesh
 					assert(basis.global().size() == 1);
 					const int basis_id = basis.global()[0].index;
 
-					const Eigen::MatrixXd basis_values = basis(U); // previously using UV
+					const Eigen::MatrixXd basis_values = basis(UV);
 
 					for (int i = 0; i < basis_values.size(); i++)
 					{
@@ -422,10 +445,13 @@ namespace polyfem::mesh
 		// std::cout << proxy_vertices << std::endl;
 		// std::cout << proxy_edges << std::endl;
 		saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh.obj", proxy_vertices, proxy_edges);
+		// bool isEqual = areDisplacementMapsEqual(displacement_map_entries_tmp, displacement_map_entries);
+		// std::cout << "The displacement maps are " << (isEqual ? "equal." : "not equal.") << std::endl;
+		// std::cout << "displacement_map_entries:" << std::endl;
 		// for (const auto& triplet : displacement_map_entries) {
 		// 	std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
 		// }
-		// exit(EXIT_SUCCESS); // Used for debug
+		exit(EXIT_SUCCESS); // Used for debug
 	}
 
 	//--------------- Added for 3D iga ---------------//

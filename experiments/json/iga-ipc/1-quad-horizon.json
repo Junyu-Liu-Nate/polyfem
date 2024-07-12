@@ -1,7 +1,7 @@
 {
     "common": "../common-ipc.json",
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad.obj",
+        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-sub3.obj",
         "transformation": {
             "scale": 0.04
         },
@@ -27,7 +27,10 @@
         "dt": 2e-05
     },
     "contact": {
-        "dhat": 6.92820323e-05
+        "dhat": 6.92820323e-05,
+        "collision_mesh": {
+            "max_edge_length": 0.33
+        }
     },
     "solver": {
         "nonlinear": {
