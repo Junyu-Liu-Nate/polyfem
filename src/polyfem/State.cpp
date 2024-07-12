@@ -1503,7 +1503,12 @@ namespace polyfem
 		{
 			// Note: This is the case where collision mesh is explicitly specified (with mapping)
 			const json collision_mesh_args = args.at("/contact/collision_mesh"_json_pointer);
-			if (collision_mesh_args.contains("linear_map"))
+			
+			//TODO: Currently hardcoded to jump to Choice 1.5, the handling of json fails
+			bool is_linear_map = false;
+			//=== Choice 1: Precompute both collision mesh and mapping outside of PolyFEM
+			// if (collision_mesh_args.contains("mesh") & collision_mesh_args.contains("linear_map"))
+			if (collision_mesh_args.contains("mesh") && is_linear_map)
 			{
 				assert(displacement_map_entries.empty());
 				assert(collision_mesh_args.contains("mesh"));
@@ -1518,7 +1523,35 @@ namespace polyfem
 					collision_edges, collision_triangles, displacement_map_entries);
 				std::cout << "Checkpoint 1" << std::endl;
 			}
-			else
+
+			//=== Choice 1.5: Precompute collision mesh outside of PolyFEM, build mapping inside PolyFEM
+			// if (collision_mesh_args.contains("mesh") & not collision_mesh_args.contains("linear_map")) 
+			if (collision_mesh_args.contains("mesh") && not is_linear_map)
+			{
+				//--- Read the collision mesh
+				const std::string root_path = utils::json_value<std::string>(args, "root_path", "");
+				const json transformation = json_as_array(args["geometry"])[0]["transformation"];
+				Eigen::MatrixXd vertices;
+				Eigen::VectorXi codim_vertices;
+				Eigen::MatrixXi edges;
+				Eigen::MatrixXi faces;
+				load_collision_proxy_mesh(utils::resolve_path(collision_mesh_args["mesh"], root_path), transformation, vertices, codim_vertices, edges, faces);
+				std::cout << "Finish loading collision proxy mesh" << std::endl;
+				
+				//--- Build displacement map
+				build_collision_proxy_displacement_map(
+					bases,
+					geom_bases,
+					total_local_boundary,
+					n_bases,
+					mesh.dimension(),
+					vertices,
+					// NOTE: no need for proxy_faces
+					displacement_map_entries);
+			}
+
+			//=== Choice 2: Construct both collision mesh and build mapping inside PolyFEN
+			if (collision_mesh_args.contains("max_edge_length"))
 			{
 				// Note: This is the case where max edge length is explicitly specified
 				assert(collision_mesh_args.contains("max_edge_length"));
@@ -1544,7 +1577,6 @@ namespace polyfem
 							collision_triangles, displacement_map_entries,
 							collision_mesh_args["tessellation_type"]);
 					}
-					
 				}
 				else {
 					build_collision_proxy(

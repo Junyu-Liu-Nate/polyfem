@@ -1,6 +1,6 @@
 {
     "geometry": [{
-        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/high-order-ipc-data/meshes/cube/cube.msh",
+        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/data/contact/meshes/3D/simple/cube.msh",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 30
@@ -17,8 +17,8 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/high-order-ipc-data/meshes/cube/cube-P2-collision-mesh.obj",
-            "linear_map": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/high-order-ipc-data/weights/higher_order/cube-P2.hdf5"
+            "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/data/contact/meshes/3D/simple/sphere/sphere5K.msh",
+            "linear_map": ""
         }
     },
     
