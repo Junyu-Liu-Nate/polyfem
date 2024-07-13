@@ -1571,19 +1571,28 @@ namespace polyfem
 							collision_mesh_args["tessellation_type"]);
 					}
 					else {
-						build_collision_proxy_hex(
+						// build_collision_proxy_hex(
+						// 	bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
+						// 	collision_mesh_args["max_edge_length"], collision_vertices,
+						// 	collision_triangles, displacement_map_entries,
+						// 	collision_mesh_args["tessellation_type"]);
+					}
+				}
+				else {
+					if (!mesh.is_volume()) {
+						build_collision_proxy_tri(
+							bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
+							collision_mesh_args["max_edge_length"], collision_vertices,
+							collision_edges, displacement_map_entries,
+							collision_mesh_args["tessellation_type"]);
+					}
+					else {
+						build_collision_proxy(
 							bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
 							collision_mesh_args["max_edge_length"], collision_vertices,
 							collision_triangles, displacement_map_entries,
 							collision_mesh_args["tessellation_type"]);
 					}
-				}
-				else {
-					build_collision_proxy(
-						bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
-						collision_mesh_args["max_edge_length"], collision_vertices,
-						collision_triangles, displacement_map_entries,
-						collision_mesh_args["tessellation_type"]);
 				}
 				
 				if (collision_triangles.size())

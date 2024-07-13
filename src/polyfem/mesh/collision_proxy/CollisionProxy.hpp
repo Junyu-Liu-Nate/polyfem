@@ -43,6 +43,19 @@ namespace polyfem::mesh
 		std::vector<Eigen::Triplet<double>> &displacement_map,
 		const CollisionProxyTessellation tessellation = CollisionProxyTessellation::REGULAR);
 
+	//------ For 2D tri
+	void build_collision_proxy_tri(
+		const std::vector<basis::ElementBases> &bases,
+		const std::vector<basis::ElementBases> &geom_bases,
+		const std::vector<LocalBoundary> &total_local_boundary,
+		const int n_bases,
+		const int dim,
+		const double max_edge_length,
+		Eigen::MatrixXd &proxy_vertices,
+		Eigen::MatrixXi &proxy_edges,
+		std::vector<Eigen::Triplet<double>> &displacement_map_entries,
+		const CollisionProxyTessellation tessellation = CollisionProxyTessellation::REGULAR);
+
 	//------ For 2D spline
 	void build_collision_proxy_quad(
 		const std::vector<basis::ElementBases> &bases,

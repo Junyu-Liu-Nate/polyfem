@@ -1,9 +1,9 @@
 {
     "geometry": [{
-        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/2d-tri-coarse.obj",
+        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/circle36.obj",
         "transformation": {
             "translation": [0, 5, 0],
-            "rotation": 30
+            "rotation": 0
         },
         "volume_selection": 1
     },{
@@ -17,8 +17,7 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/2d-tri-P1-collision-mesh.obj",
-            "linear_map": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/high-order-ipc-data/weights/higher_order/2d-tri-P1.hdf5"
+            "max_edge_length": 0.5
         }
     },
     
@@ -28,7 +27,7 @@
         "dt": 0.025
     },
     "space": {
-        "discr_order": 1,
+        "discr_order": 2,
         "basis_type": "Lagrange",
         "advanced": {
             "bc_method": "sample"

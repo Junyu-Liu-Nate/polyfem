@@ -84,7 +84,7 @@ namespace polyfem::mesh
 		}
 	}
 
-	//------ Added for 2d 
+	//------ Added for edge boudnary
 	void stitch_line_mesh(
 		const Eigen::MatrixXd &V,  // Input vertices
 		const Eigen::MatrixXi &E,  // Input edges
@@ -99,25 +99,30 @@ namespace polyfem::mesh
 		V_out.resize(0, V.cols());
 		int curr_index = 0;
 
-		// Deduplicate vertices
+		//--- Deduplicate vertices
+		// Note: Vertices have duplication - happens at connections of two edges
 		for (int i = 0; i < V.rows(); ++i) {
 			bool found_duplicate = false;
+			// Searching in the V_out, which is gradually growing
 			for (int j = 0; j < V_out.rows(); ++j) {
 				if ((V.row(i) - V_out.row(j)).norm() < epsilon) {
-					std::cout << "Found duplicate" << std::endl;
+					// std::cout << "Found duplicate" << std::endl;
 					vertex_map[i] = j;
 					found_duplicate = true;
 					break;
 				}
 			}
 			if (!found_duplicate) {
-				vertex_map[i] = curr_index++;
+				vertex_map[i] = curr_index;
+				curr_index++;
+				// std::cout << "i: "<< i << ", curr_index: " << curr_index << ", vertex_map[i]: " << vertex_map[i] << std::endl;
 				V_out.conservativeResize(V_out.rows() + 1, Eigen::NoChange);
 				V_out.row(V_out.rows() - 1) = V.row(i);
 			}
 		}
 
-		// Update edges
+		//--- Update edges
+		// Note: Edges themselves don't have duplications, just need to remap the vertex index
 		E_out.resize(E.rows(), E.cols());
 		for (int i = 0; i < E.rows(); ++i) {
 			for (int j = 0; j < E.cols(); ++j) {
@@ -125,11 +130,26 @@ namespace polyfem::mesh
 			}
 		}
 
-		// Update weights
+		//--- Update weights
+		std::cout << "Size of W: " << W.size() << std::endl;
+		std::cout << "Size of W_out: " << W_out.size() << std::endl;
+		std::set<std::pair<int, int>> existing_entries;  // Set to check for existing (row, col) pairs
 		for (const auto &weight : W) {
 			int new_row = vertex_map[weight.row()];
-			W_out.push_back(Eigen::Triplet<double>(new_row, weight.col(), weight.value()));
+
+			// Create a pair of (new_row, weight.col()) to check for duplicates
+        	std::pair<int, int> index_pair(new_row, weight.col());
+			if (existing_entries.find(index_pair) == existing_entries.end()) {
+				W_out.push_back(Eigen::Triplet<double>(new_row, weight.col(), weight.value()));
+				existing_entries.insert(index_pair);
+			}
+			else {
+				continue;
+			}
+
+			// W_out.push_back(Eigen::Triplet<double>(new_row, weight.col(), weight.value()));
 		}
+		std::cout << "Size of W_out: " << W_out.size() << std::endl;
 	}
 
 	double max_edge_length(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F)
