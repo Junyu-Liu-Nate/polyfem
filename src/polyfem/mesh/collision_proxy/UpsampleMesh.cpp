@@ -131,8 +131,8 @@ namespace polyfem::mesh
 		}
 
 		//--- Update weights
-		std::cout << "Size of W: " << W.size() << std::endl;
-		std::cout << "Size of W_out: " << W_out.size() << std::endl;
+		// std::cout << "Size of W: " << W.size() << std::endl;
+		// std::cout << "Size of W_out: " << W_out.size() << std::endl;
 		std::set<std::pair<int, int>> existing_entries;  // Set to check for existing (row, col) pairs
 		for (const auto &weight : W) {
 			int new_row = vertex_map[weight.row()];
@@ -146,10 +146,8 @@ namespace polyfem::mesh
 			else {
 				continue;
 			}
-
-			// W_out.push_back(Eigen::Triplet<double>(new_row, weight.col(), weight.value()));
 		}
-		std::cout << "Size of W_out: " << W_out.size() << std::endl;
+		// std::cout << "Size of W_out: " << W_out.size() << std::endl;
 	}
 
 	double max_edge_length(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F)

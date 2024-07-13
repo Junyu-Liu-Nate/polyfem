@@ -353,12 +353,6 @@ namespace polyfem::mesh
 				}
 			}
 		}
-
-		// // Print displacement_map_entries_tmp
-		// std::cout << "displacement_map_entries_tmp:" << std::endl;
-		// for (const auto& triplet : displacement_map_entries_tmp) {
-		// 	std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
-		// }
 		
 		//--- stitch collision proxy together
 		stitch_line_mesh(
@@ -368,13 +362,7 @@ namespace polyfem::mesh
 			proxy_vertices, proxy_edges, displacement_map_entries);
 
 		//--- For debug only
-		saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh.obj", proxy_vertices, proxy_edges);
-		// bool isEqual = areDisplacementMapsEqual(displacement_map_entries_tmp, displacement_map_entries);
-		// std::cout << "The displacement maps are " << (isEqual ? "equal." : "not equal.") << std::endl;
-		// std::cout << "displacement_map_entries:" << std::endl;
-		// for (const auto& triplet : displacement_map_entries) {
-		// 	std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
-		// }
+		// saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh.obj", proxy_vertices, proxy_edges);
 		// exit(EXIT_SUCCESS); // Used for debug
 	}
 
@@ -452,12 +440,6 @@ namespace polyfem::mesh
 				}
 			}
 		}
-
-		// // Print displacement_map_entries_tmp
-		// std::cout << "displacement_map_entries_tmp:" << std::endl;
-		// for (const auto& triplet : displacement_map_entries_tmp) {
-		// 	std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
-		// }
 		
 		//--- stitch collision proxy together
 		stitch_line_mesh(
@@ -467,13 +449,7 @@ namespace polyfem::mesh
 			proxy_vertices, proxy_edges, displacement_map_entries);
 
 		//--- For debug only
-		saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh.obj", proxy_vertices, proxy_edges);
-		// bool isEqual = areDisplacementMapsEqual(displacement_map_entries_tmp, displacement_map_entries);
-		// std::cout << "The displacement maps are " << (isEqual ? "equal." : "not equal.") << std::endl;
-		// std::cout << "displacement_map_entries:" << std::endl;
-		// for (const auto& triplet : displacement_map_entries) {
-		// 	std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
-		// }
+		// saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh.obj", proxy_vertices, proxy_edges);
 		// exit(EXIT_SUCCESS); // Used for debug
 	}
 

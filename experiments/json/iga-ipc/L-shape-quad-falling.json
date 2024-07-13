@@ -1,31 +1,33 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/3d-hex/3d-hex.msh",
+        "mesh": "../../mesh/iga-ipc/2d-quad/L_shape_dense.obj",
         "transformation": {
-            "translation": [0, 3, 0]
+            "translation": [0, 5, 0],
+            "rotation": 0
         },
         "volume_selection": 1
     },{
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true
     }],
-    
+
     "contact": {
         "enabled": true,
         "dhat": 1e-3,
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "max_edge_length": 0.2
+            "max_edge_length": 0.5
         }
     },
+    
     "time": {
         "integrator": "ImplicitEuler",
         "tend": 5,
         "dt": 0.025
     },
     "space": {
-        "discr_order": 1,
+        "discr_order": 2,
         "basis_type": "Spline",
         "advanced": {
             "bc_method": "sample"
@@ -56,15 +58,22 @@
         }
     },
     "output": {
+        "json": "sim.json",
         "paraview": {
             "file_name": "sim.pvd",
+            "surface": true,
+            "high_order_mesh": true,
             "options": {
                 "material": true,
                 "body_ids": true,
-                "tensor_values": false,
-                "nodes": false
+                "contact_forces": true,
+                "friction_forces": true
             },
-            "vismesh_rel_area": 1e7
+            "vismesh_rel_area": 10000000
+        },
+        "advanced": {
+            "save_solve_sequence_debug": false,
+            "save_time_sequence": true
         }
     }
 }

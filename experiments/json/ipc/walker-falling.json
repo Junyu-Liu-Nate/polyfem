@@ -1,0 +1,79 @@
+{
+    "geometry": [{
+        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/walker.obj",
+        "transformation": {
+            "translation": [0, 5, 0],
+            "rotation": 0
+        },
+        "volume_selection": 1
+    },{
+        "mesh": "../../mesh/iga-ipc/plane.obj",
+        "is_obstacle": true
+    }],
+
+    "contact": {
+        "enabled": true,
+        "dhat": 1e-3,
+        "friction_coefficient": 0.1,
+        "epsv": 1e-3,
+        "collision_mesh": {
+            "max_edge_length": 0.5
+        }
+    },
+    
+    "time": {
+        "integrator": "ImplicitEuler",
+        "tend": 5,
+        "dt": 0.025
+    },
+    "space": {
+        "discr_order": 2,
+        "basis_type": "Lagrange",
+        "advanced": {
+            "bc_method": "sample"
+        }
+    },
+    "boundary_conditions": {
+        "rhs": [0, 9.81, 0]
+    },
+    "materials": {
+        "type": "NeoHookean",
+        "E": 1e5,
+        "nu": 0.4,
+        "rho": 1000
+    },
+    "solver": {
+        "linear": {
+            "solver": ["Eigen::PardisoLDLT", "Eigen::CholmodDecomposition"]
+        },
+        "nonlinear": {
+            "x_delta": 1e-05
+        },
+        "advanced": {
+            "lump_mass_matrix": true
+        },
+        "contact": {
+            "friction_convergence_tol": 0.01,
+            "friction_iterations": 1
+        }
+    },
+    "output": {
+        "json": "sim.json",
+        "paraview": {
+            "file_name": "sim.pvd",
+            "surface": true,
+            "high_order_mesh": true,
+            "options": {
+                "material": true,
+                "body_ids": true,
+                "contact_forces": true,
+                "friction_forces": true
+            },
+            "vismesh_rel_area": 10000000
+        },
+        "advanced": {
+            "save_solve_sequence_debug": false,
+            "save_time_sequence": true
+        }
+    }
+}
