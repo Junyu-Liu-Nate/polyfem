@@ -912,6 +912,7 @@ namespace polyfem::io
 			}
 			else if (disc_orders(i) > 1)
 				error_msg = "Saving high-order meshes not implemented for Q2+ elements!";
+				//TODO: How to define order?
 		}
 
 		if (!error_msg.empty())
