@@ -16,7 +16,7 @@
         }
     }],
     "space": {
-        "discr_order": 3,
+        "discr_order": 2,
         "basis_type": "Spline",
         "advanced": {
             "bc_method": "sample"

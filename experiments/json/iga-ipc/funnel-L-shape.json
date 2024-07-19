@@ -1,0 +1,54 @@
+{
+    "boundary_conditions": {
+        "dirichlet_boundary": [{
+            "dimension": [true, false, false],
+            "id": 1,
+            "value": ["min(0.5*t, 10)", 0, 0]
+        }],
+        "rhs": [0, 0, 0]
+    },
+    "common": "../common-ipc.json",
+    "geometry": [{
+        "mesh": "../../mesh/iga-ipc/2d-quad/L_shape_dense.obj",
+        "transformation": {
+            "rotation": 40,
+            "scale": 0.3,
+            "translation": [0.4547526249, 0.5227239301, -0.02286748313]
+        },
+        "volume_selection": 1
+    }, {
+        "is_obstacle": true,
+        "mesh": "../../mesh/iga-ipc/obstacles/funnel.obj",
+        "transformation": {
+            "rotation": 90,
+            "scale": 1.5,
+            "translation": [1.76, 0.86, 0.42]
+        }
+    }],
+    "materials": {
+        "E": 10000,
+        "nu": 0.4,
+        "rho": 1000,
+        "type": "NeoHookean"
+    },
+    "output": {
+        "paraview": {
+            "file_name": "funnel-L-shape.pvd"
+        }
+    },
+    "solver": {
+        "augmented_lagrangian": {
+            "nonlinear": {
+                "max_iterations": 100,
+                "allow_out_of_iterations": true
+            }
+        },
+        "nonlinear": {
+            "max_iterations": 10000
+        }
+    },
+    "time": {
+        "dt": 0.04,
+        "tend": 32
+    }
+}

@@ -62,14 +62,14 @@
         "paraview": {
             "file_name": "sim.pvd",
             "surface": true,
-            "high_order_mesh": true,
+            "high_order_mesh": false,
             "options": {
                 "material": true,
                 "body_ids": true,
                 "contact_forces": true,
                 "friction_forces": true
             },
-            "vismesh_rel_area": 10000000
+            "vismesh_rel_area": 1e-03
         },
         "advanced": {
             "save_solve_sequence_debug": false,
