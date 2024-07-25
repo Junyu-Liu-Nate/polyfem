@@ -1,9 +1,9 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/3d-hex/unit_hex_sub3.msh",
+        "mesh": "../../mesh/iga-ipc/3d-hex/casting.mesh",
         "transformation": {
-            "translation": [0, 6, 0],
-            "rotation": [0, 30, 30]
+            "translation": [0, 5, 0],
+            "rotation": 0
         }
     },{
         "mesh": "../../mesh/iga-ipc/plane.obj",

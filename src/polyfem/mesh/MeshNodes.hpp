@@ -59,11 +59,11 @@ namespace polyfem
 			int cell_from_node_id(int node_id) const;
 
 			const std::vector<int> &primitive_to_node() const { 
-				std::cout << "Contents of primitive_to_node_:" << std::endl;
-				for (int node : primitive_to_node_) {
-					std::cout << node << " ";
-				}
-				std::cout << std::endl;
+				// std::cout << "Contents of primitive_to_node_:" << std::endl;
+				// for (int node : primitive_to_node_) {
+				// 	std::cout << node << " ";
+				// }
+				// std::cout << std::endl;
 				return primitive_to_node_; 
 			}
 			const std::vector<int> &node_to_primitive_gid() const { return node_to_primitive_gid_; }

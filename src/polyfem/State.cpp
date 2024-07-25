@@ -1789,22 +1789,22 @@ namespace polyfem
 		const std::vector<basis::ElementBases> &bases_) const
 	{
 		const int size = problem->is_scalar() ? 1 : mesh->dimension();
-		std::cout << "check build_pressure_assembler 1" << std::endl;
+		// std::cout << "check build_pressure_assembler 1" << std::endl;
 
-		// Print statements to check the validity of each parameter before creating the PressureAssembler
-		std::cout << "Checking assembler validity: " << (assembler != nullptr) << std::endl;
-		std::cout << "Checking mesh validity: " << (mesh != nullptr) << std::endl;
-		// std::cout << "Checking obstacle validity: " << (obstacle != nullptr) << std::endl;
-		std::cout << "Checking local_pressure_boundary size: " << local_pressure_boundary.size() << std::endl;
-		std::cout << "Checking local_pressure_cavity size: " << local_pressure_cavity.size() << std::endl;
-		std::cout << "Checking boundary_nodes size: " << boundary_nodes.size() << std::endl;
-		std::cout << "Checking primitive_to_node validity: " << (!primitive_to_node().empty()) << std::endl;
-		std::cout << "Checking node_to_primitive validity: " << (!node_to_primitive().empty()) << std::endl;
-		std::cout << "Checking n_bases_ value: " << n_bases_ << std::endl;
-		std::cout << "Checking size value: " << size << std::endl;
-		// std::cout << "Checking bases_ size: " << (bases_ != nullptr ? bases_->size() : 0) << std::endl; // Adjust this according to actual structure if necessary
-		std::cout << "Checking geom_bases() size: " << geom_bases().size() << std::endl; // Adjust if geom_bases is a function returning a vector
-		std::cout << "Checking problem validity: " << (problem != nullptr) << std::endl;
+		// // Print statements to check the validity of each parameter before creating the PressureAssembler
+		// std::cout << "Checking assembler validity: " << (assembler != nullptr) << std::endl;
+		// std::cout << "Checking mesh validity: " << (mesh != nullptr) << std::endl;
+		// // std::cout << "Checking obstacle validity: " << (obstacle != nullptr) << std::endl;
+		// std::cout << "Checking local_pressure_boundary size: " << local_pressure_boundary.size() << std::endl;
+		// std::cout << "Checking local_pressure_cavity size: " << local_pressure_cavity.size() << std::endl;
+		// std::cout << "Checking boundary_nodes size: " << boundary_nodes.size() << std::endl;
+		// std::cout << "Checking primitive_to_node validity: " << (!primitive_to_node().empty()) << std::endl;
+		// std::cout << "Checking node_to_primitive validity: " << (!node_to_primitive().empty()) << std::endl;
+		// std::cout << "Checking n_bases_ value: " << n_bases_ << std::endl;
+		// std::cout << "Checking size value: " << size << std::endl;
+		// // std::cout << "Checking bases_ size: " << (bases_ != nullptr ? bases_->size() : 0) << std::endl; // Adjust this according to actual structure if necessary
+		// std::cout << "Checking geom_bases() size: " << geom_bases().size() << std::endl; // Adjust if geom_bases is a function returning a vector
+		// std::cout << "Checking problem validity: " << (problem != nullptr) << std::endl;
 
 		return std::make_shared<PressureAssembler>(
 			*assembler, *mesh, obstacle,
@@ -1928,7 +1928,6 @@ namespace polyfem
 				logger().info("Time sequence of simulation will be written to: \"{}\"",
 							  resolve_output_path(args["output"]["paraview"]["file_name"]));
 			}
-			std::cout << "check, check, check" << std::endl;
 
 			if (assembler->name() == "NavierStokes")
 				solve_transient_navier_stokes(time_steps, t0, dt, sol, pressure);
