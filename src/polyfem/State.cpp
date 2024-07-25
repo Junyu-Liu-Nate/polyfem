@@ -1599,8 +1599,11 @@ namespace polyfem
 					}
 				}
 				
-				if (collision_triangles.size())
+				if (collision_triangles.size()) {
+					// std::cout << "Check extracting edges?" << std::endl;
 					igl::edges(collision_triangles, collision_edges);
+				}
+				
 				timer.stop();
 				logger().debug(fmt::format(
 					std::locale("en_US.UTF-8"),

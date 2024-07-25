@@ -1,11 +1,10 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/3d-hex/casting.mesh",
+        "mesh": "../../mesh/iga-ipc/3d-hex/unit_hex_sub3.msh",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 0
-        },
-        "n_refs": 0
+        }
     },{
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true
@@ -17,7 +16,7 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "max_edge_length": 0.3
+            "max_edge_length": 0.5
         }
     },
     
@@ -30,8 +29,7 @@
         "discr_order": 2,
         "basis_type": "Spline",
         "advanced": {
-            "bc_method": "sample",
-            "count_flipped_els": false
+            "bc_method": "sample"
         }
     },
     "boundary_conditions": {

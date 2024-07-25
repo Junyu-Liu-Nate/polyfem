@@ -17,8 +17,8 @@
 
 #========== Quad mesh
 ##### Falling under gravity
-# ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/unit-quad-falling.json \
-#               -o ../experiments/output/contact-2D-IGA/unit-quad-falling/
+./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/unit-quad-falling.json \
+              -o ../experiments/output/contact-2D-IGA/unit-quad-falling/
 
 # ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/L-shape-quad-falling.json \
 #               -o ../experiments/output/contact-2D-IGA/L-shape-quad-falling/
@@ -26,8 +26,8 @@
 # ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/circle36-quad-falling.json \
 #               -o ../experiments/output/contact-2D-IGA/circle36-quad-falling/
 
-./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/penguin-quad-falling.json \
-              -o ../experiments/output/contact-2D-IGA/penguin-quad-falling/
+# ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/penguin-quad-falling.json \
+#               -o ../experiments/output/contact-2D-IGA/penguin-quad-falling/
 
 ##### Horizontal move with initial speed
 # ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/unit-quad-horizon.json \

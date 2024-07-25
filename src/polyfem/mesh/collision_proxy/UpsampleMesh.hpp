@@ -42,6 +42,15 @@ namespace polyfem::mesh
 		std::vector<Eigen::Triplet<double>> &W_out,
 		const double epsilon = 1e-5);
 
+	void stitch_tri_mesh(
+		const Eigen::MatrixXd &V,  // Input vertices
+		const Eigen::MatrixXi &F,  // Input edges
+		const std::vector<Eigen::Triplet<double>> &W,  // Input weights
+		Eigen::MatrixXd &V_out,  // Output vertices (duplicate vertices removed)
+		Eigen::MatrixXi &F_out,  // Output edges (updated to use V_out)
+		std::vector<Eigen::Triplet<double>> &W_out,  // Output weights (updated)
+		double epsilon = 1e-5);  // Tolerance for duplicate vertices
+
 	void stitch_line_mesh(
 		const Eigen::MatrixXd &V,  // Input vertices
 		const Eigen::MatrixXi &E,  // Input edges

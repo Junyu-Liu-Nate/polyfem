@@ -282,6 +282,7 @@ namespace polyfem::mesh
 		// exit(EXIT_SUCCESS); // Used for debug
 	}
 
+	//--- Save upsampled mesh function for debug
 	void saveSurfaceMesh(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_faces) {
 		std::ofstream file(filename);
 		if (!file.is_open()) {
@@ -307,6 +308,27 @@ namespace polyfem::mesh
 		file.close();
 	}
 
+	void saveEdgeMesh(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_edges) {
+		std::ofstream file(filename);
+		if (!file.is_open()) {
+			std::cerr << "Error opening file for writing: " << filename << std::endl;
+			return;
+		}
+
+		// Write vertices to file
+		for (int i = 0; i < proxy_vertices.rows(); ++i) {
+			file << "v " << proxy_vertices(i, 0) << " " << proxy_vertices(i, 1) << " " << proxy_vertices(i, 2) << std::endl;
+		}
+
+		// Write edges as lines to file
+		for (int i = 0; i < proxy_edges.rows(); ++i) {
+			// .obj files are 1-indexed, so add 1 to each index
+			file << "l " << (proxy_edges(i, 0) + 1) << " " << (proxy_edges(i, 1) + 1) << std::endl;
+		}
+
+		file.close();
+	}
+
 	void build_collision_proxy_hex(
 		const std::vector<basis::ElementBases> &bases,
 		const std::vector<basis::ElementBases> &geom_bases,
@@ -323,20 +345,21 @@ namespace polyfem::mesh
 		std::vector<int> proxy_faces_list;
 		std::vector<Eigen::Triplet<double>> displacement_map_entries_tmp;
 
+		//--- Define per-boundary element discretization
 		Eigen::MatrixXd UV;
 		Eigen::MatrixXi F_local;
-
 		if (tessellation == CollisionProxyTessellation::REGULAR)
 		{
 			int n_segments = std::ceil(1.0 / max_edge_length);
 			regular_grid_quad_barycentric_coordinates(n_segments, UV, F_local);
 		}
-		std::cout << "UV:" << UV << std::endl;
-		std::cout << "F_local:" << F_local << std::endl;
+		// std::cout << "UV:" << UV << std::endl;
+		// std::cout << "F_local:" << F_local << std::endl;
 
+		//--- Itetrate boundary elements
 		for (const LocalBoundary &local_boundary : total_local_boundary)
 		{
-			std::cout << "Processing LocalBoundary for element: " << local_boundary.element_id() << std::endl;
+			// std::cout << "Processing LocalBoundary for element: " << local_boundary.element_id() << std::endl;
 			
 			if (local_boundary.type() != BoundaryType::QUAD)
 				log_and_throw_error("build_collision_proxy() is only implemented for hexahedra!");
@@ -363,6 +386,7 @@ namespace polyfem::mesh
 				for (const int i : F_local.reshaped<Eigen::RowMajor>())
 					proxy_faces_list.push_back(i + offset);
 
+				// std::cout << "elm.bases.size(): " << elm.bases.size() << std::endl;
 				for (const basis::Basis &basis : elm.bases)
 				{
 					assert(basis.global().size() == 1);
@@ -380,18 +404,24 @@ namespace polyfem::mesh
 		}
 
 		// stitch collision proxy together
-		stitch_mesh(
+		stitch_tri_mesh(
 			Eigen::Map<RowMajorMatrixX<double>>(proxy_vertices_list.data(), proxy_vertices_list.size() / dim, dim),
-			Eigen::Map<RowMajorMatrixX<int>>(proxy_faces_list.data(), proxy_faces_list.size() / dim, dim),
+			Eigen::Map<RowMajorMatrixX<int>>(proxy_faces_list.data(), proxy_faces_list.size() / 3, 3),
 			displacement_map_entries_tmp,
 			proxy_vertices, proxy_faces, displacement_map_entries);
 
 		//--- For debug only
 		saveSurfaceMesh("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_hex_surface.obj", proxy_vertices, proxy_faces);
+
+		// Eigen::MatrixXi collision_edges;
+		// igl::edges(proxy_faces, collision_edges);
+		// std::cout << "Number of rows in collision_edges: " << collision_edges.rows() << std::endl;
+		// std::cout << "Number of columns in collision_edges: " << collision_edges.cols() << std::endl;
+		// // std::cout << collision_edges << std::endl;
+		// saveEdgeMesh("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_hex_edge.obj", proxy_vertices, collision_edges);
 	}
 
 	//--------------- Added for 2D tri and quad mesh ---------------//
-	//--- Save upsampled mesh function for debug
 	void saveAsOBJ(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_edges) {
 		std::ofstream file(filename);
 		if (!file.is_open()) {

@@ -77,10 +77,119 @@ namespace polyfem::mesh
 		// Filter out the weights that correspond to duplicate vertices
 		W_out.clear();
 		W_out.reserve(W.size());
+		std::cout << "Size of W: " << W.size() << std::endl;
+		std::cout << "Size of W_out: " << W_out.size() << std::endl;
 		for (const Eigen::Triplet<double> &w : W)
 		{
 			if (!std::binary_search(removed_indices.begin(), removed_indices.end(), w.row()))
 				W_out.emplace_back(inverse(w.row()), w.col(), w.value());
+		}
+		std::cout << "Size of W_out: " << W_out.size() << std::endl;
+	}
+
+	//------ Revised version for stitching triangle meshes
+	void stitch_tri_mesh(
+		const Eigen::MatrixXd &V,  // Input vertices
+		const Eigen::MatrixXi &F,  // Input edges
+		const std::vector<Eigen::Triplet<double>> &W,  // Input weights
+		Eigen::MatrixXd &V_out,  // Output vertices (duplicate vertices removed)
+		Eigen::MatrixXi &F_out,  // Output edges (updated to use V_out)
+		std::vector<Eigen::Triplet<double>> &W_out,  // Output weights (updated)
+		double epsilon)  // Tolerance for duplicate vertices
+	{
+		std::vector<int> vertex_map(V.rows(), -1);
+		std::vector<int> new_index;
+		V_out.resize(0, V.cols());
+		int curr_index = 0;
+
+		//--- Deduplicate vertices
+		// Note: Vertices have duplication - happens at connections of two edges
+		for (int i = 0; i < V.rows(); ++i) {
+			bool found_duplicate = false;
+			// Searching in the V_out, which is gradually growing
+			for (int j = 0; j < V_out.rows(); ++j) {
+				if ((V.row(i) - V_out.row(j)).norm() < epsilon) {
+					// std::cout << "Found duplicate" << std::endl;
+					vertex_map[i] = j;
+					found_duplicate = true;
+					break;
+				}
+			}
+			if (!found_duplicate) {
+				vertex_map[i] = curr_index;
+				curr_index++;
+				// std::cout << "i: "<< i << ", curr_index: " << curr_index << ", vertex_map[i]: " << vertex_map[i] << std::endl;
+				V_out.conservativeResize(V_out.rows() + 1, Eigen::NoChange);
+				V_out.row(V_out.rows() - 1) = V.row(i);
+			}
+		}
+		std::cout << "Number of rows in V_out: " << V_out.rows() << std::endl;
+
+		//--- Update faces
+		// Note: Faces themselves don't have duplications, just need to remap the vertex index
+		F_out.resize(F.rows(), F.cols());
+		for (int i = 0; i < F.rows(); ++i) {
+			for (int j = 0; j < F.cols(); ++j) {
+				F_out(i, j) = vertex_map[F(i, j)];
+			}
+		}
+		std::cout << "Number of rows in F_out: " << F_out.rows() << std::endl;
+
+		//--- Update weights
+		std::cout << "Size of W: " << W.size() << std::endl;
+		int max_row = -1, max_col = -1;
+		for (const auto& triplet : W) {
+			max_row = std::max(max_row, triplet.row());
+			max_col = std::max(max_col, triplet.col());
+		}
+		std::cout << "W: Maximum row size: " << max_row + 1 << std::endl;
+		std::cout << "W: Maximum column size: " << max_col + 1 << std::endl;
+
+		// std::cout << "Size of W_out: " << W_out.size() << std::endl;
+		std::set<std::pair<int, int>> existing_entries;  // Set to check for existing (row, col) pairs
+		for (const auto &weight : W) {
+			int new_row = vertex_map[weight.row()];
+
+			// Create a pair of (new_row, weight.col()) to check for duplicates
+        	std::pair<int, int> index_pair(new_row, weight.col());
+			if (existing_entries.find(index_pair) == existing_entries.end()) {
+				W_out.push_back(Eigen::Triplet<double>(new_row, weight.col(), weight.value()));
+				existing_entries.insert(index_pair);
+			}
+			else {
+				continue;
+			}
+		}
+
+		//---- Debug: print out W_out size
+		std::cout << "Size of W_out: " << W_out.size() << std::endl;
+		max_row = -1; max_col = -1;
+		for (const auto& triplet : W_out) {
+			max_row = std::max(max_row, triplet.row());
+			max_col = std::max(max_col, triplet.col());
+		}
+		std::cout << "W_out: Maximum row size: " << max_row + 1 << std::endl;
+		std::cout << "W_out: Maximum column size: " << max_col + 1 << std::endl;
+
+		//---- Debug: check whether all row/col index appear at least once
+		// Create containers to track presence of indices
+		std::vector<bool> row_presence(max_row + 1, false);
+		std::vector<bool> col_presence(max_col + 1, false);
+		// Mark the presence of row and column indices
+		for (const auto& triplet : W_out) {
+			row_presence[triplet.row()] = true;
+			col_presence[triplet.col()] = true;
+		}
+		// Check if any index is missing
+		for (int i = 0; i <= max_row; ++i) {
+			if (!row_presence[i]) {
+				std::cout << "Row index " << i << " is missing in W_out." << std::endl;
+			}
+		}
+		for (int i = 0; i <= max_col; ++i) {
+			if (!col_presence[i]) {
+				std::cout << "Column index " << i << " is missing in W_out." << std::endl;
+			}
 		}
 	}
 
@@ -147,7 +256,15 @@ namespace polyfem::mesh
 				continue;
 			}
 		}
+		
 		// std::cout << "Size of W_out: " << W_out.size() << std::endl;
+		// int max_row = -1, max_col = -1;
+		// for (const auto& triplet : W_out) {
+		// 	max_row = std::max(max_row, triplet.row());
+		// 	max_col = std::max(max_col, triplet.col());
+		// }
+		// std::cout << "W_out: Maximum row size: " << max_row + 1 << std::endl;
+		// std::cout << "W_out: Maximum column size: " << max_col + 1 << std::endl;
 	}
 
 	double max_edge_length(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F)
