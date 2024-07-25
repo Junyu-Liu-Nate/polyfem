@@ -218,6 +218,7 @@ namespace polyfem
 
 	void State::solve_transient_linear(const int time_steps, const double t0, const double dt, Eigen::MatrixXd &sol, Eigen::MatrixXd &pressure)
 	{
+		std::cout << "Check solve_transient_linear." << std::endl;
 		assert(sol.cols() == 1);
 		assert(problem->is_time_dependent());
 		assert(assembler->is_linear() && !is_contact_enabled());

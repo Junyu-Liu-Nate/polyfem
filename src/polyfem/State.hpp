@@ -256,6 +256,7 @@ namespace polyfem
 			const std::vector<basis::ElementBases> &bases_) const;
 		std::shared_ptr<assembler::PressureAssembler> build_pressure_assembler() const
 		{
+			std::cout << "check build_pressure_assembler() 1" << std::endl;
 			return build_pressure_assembler(n_bases, bases);
 		}
 

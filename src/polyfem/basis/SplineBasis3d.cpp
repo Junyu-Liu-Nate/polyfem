@@ -1023,7 +1023,7 @@ namespace polyfem
 			}
 		} // namespace
 
-		int SplineBasis3d::build_bases(const Mesh3D &mesh,
+		std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> SplineBasis3d::build_bases(const Mesh3D &mesh,
 									   const std::string &assembler,
 									   const int quadrature_order, const int mass_quadrature_order, std::vector<ElementBases> &bases, std::vector<LocalBoundary> &local_boundary, std::map<int, InterfaceData> &poly_face_to_data)
 		{
@@ -1031,6 +1031,7 @@ namespace polyfem
 			assert(mesh.is_volume());
 
 			MeshNodes mesh_nodes(mesh, true, true, 1, 1, 1);
+			// auto mesh_nodes = std::make_shared<polyfem::mesh::MeshNodes>(mesh, true, true, 1, 1);
 
 			const int n_els = mesh.n_elements();
 			bases.resize(n_els);
@@ -1217,7 +1218,9 @@ namespace polyfem
 				array.resize(std::distance(array.begin(), it));
 			}
 
-			return n_bases;
+			// return n_bases;
+			// return std::make_tuple(n_bases, mesh_nodes);
+			return std::make_tuple(n_bases, std::make_shared<polyfem::mesh::MeshNodes>(std::move(mesh_nodes)));
 		}
 
 		void SplineBasis3d::fit_nodes(const Mesh3D &mesh, const int n_bases, std::vector<ElementBases> &gbases)

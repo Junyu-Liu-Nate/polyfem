@@ -99,6 +99,8 @@ namespace polyfem::solver
 		// Rayleigh damping form
 		const json &rayleigh_damping)
 	{
+		std::cout << "Check is in init_forms" << std::endl;
+		
 		const bool is_time_dependent = time_integrator != nullptr;
 		assert(!is_time_dependent || time_integrator != nullptr);
 		const double dt = is_time_dependent ? time_integrator->dt() : 0.0;
@@ -114,6 +116,8 @@ namespace polyfem::solver
 			t, dt, is_volume);
 		forms.push_back(elastic_form);
 
+		std::cout << "init_forms: check 1" << std::endl;
+
 		if (rhs_assembler != nullptr)
 		{
 			body_form = std::make_shared<BodyForm>(
@@ -124,6 +128,8 @@ namespace polyfem::solver
 			body_form->update_quantities(t, sol);
 			forms.push_back(body_form);
 		}
+
+		std::cout << "init_forms: check 2" << std::endl;
 
 		if (pressure_assembler != nullptr)
 		{
@@ -137,6 +143,8 @@ namespace polyfem::solver
 			pressure_form->update_quantities(t, sol);
 			forms.push_back(pressure_form);
 		}
+
+		std::cout << "init_forms: check 3" << std::endl;
 
 		inertia_form = nullptr;
 		damping_form = nullptr;
@@ -165,6 +173,8 @@ namespace polyfem::solver
 			}
 		}
 
+		std::cout << "init_forms: check 4" << std::endl;
+
 		if (rhs_assembler != nullptr)
 		{
 			// assembler::Mass mass_mat_assembler;
@@ -184,12 +194,16 @@ namespace polyfem::solver
 			forms.push_back(al_pen_form);
 		}
 
+		std::cout << "init_forms: check 5" << std::endl;
+
 		if (macro_strain_constraint.is_active())
 		{
 			// don't push these two into forms because they take a different input x
 			strain_al_pen_form = std::make_shared<MacroStrainALForm>(macro_strain_constraint);
 			strain_al_lagr_form = std::make_shared<MacroStrainLagrangianForm>(macro_strain_constraint);
 		}
+
+		std::cout << "init_forms: check 6" << std::endl;
 
 		contact_form = nullptr;
 		periodic_contact_form = nullptr;
@@ -254,6 +268,8 @@ namespace polyfem::solver
 			}
 		}
 
+		std::cout << "init_forms: check 7" << std::endl;
+
 		const std::vector<json> rayleigh_damping_jsons = utils::json_as_array(rayleigh_damping);
 		if (is_time_dependent)
 		{
@@ -274,6 +290,8 @@ namespace polyfem::solver
 		{
 			log_and_throw_adjoint_error("Rayleigh damping is only supported for time-dependent problems");
 		}
+
+		std::cout << "init_forms: check 8" << std::endl;
 
 		update_dt();
 

@@ -262,27 +262,15 @@ namespace polyfem::mesh
 			}
 		}
 
-		// // Print displacement_map_entries_tmp
-		// std::cout << "displacement_map_entries_tmp:" << std::endl;
-		// for (const auto& triplet : displacement_map_entries_tmp) {
-		// 	std::cout << "(" << triplet.row() << ", " << triplet.col() << ") -> " << triplet.value() << std::endl;
-		// }
-
 		// stitch collision proxy together
 		stitch_mesh(
 			Eigen::Map<RowMajorMatrixX<double>>(proxy_vertices_list.data(), proxy_vertices_list.size() / dim, dim),
 			Eigen::Map<RowMajorMatrixX<int>>(proxy_faces_list.data(), proxy_faces_list.size() / dim, dim),
 			displacement_map_entries_tmp,
 			proxy_vertices, proxy_faces, displacement_map_entries);
-		
-		// std::cout << "After stitching, proxy_vertices:" << std::endl;
-		// std::cout << proxy_vertices << std::endl;
-		// std::cout << "After stitching, proxy_faces:" << std::endl;
-		// std::cout << proxy_faces << std::endl;
-		// exit(EXIT_SUCCESS); // Used for debug
 	}
 
-	//--- Save upsampled mesh function for debug
+	//--- Debug: Save upsampled mesh function for debug
 	void saveSurfaceMesh(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_faces) {
 		std::ofstream file(filename);
 		if (!file.is_open()) {
@@ -362,7 +350,7 @@ namespace polyfem::mesh
 			// std::cout << "Processing LocalBoundary for element: " << local_boundary.element_id() << std::endl;
 			
 			if (local_boundary.type() != BoundaryType::QUAD)
-				log_and_throw_error("build_collision_proxy() is only implemented for hexahedra!");
+				log_and_throw_error("The input mesh should be hex only mesh!");
  
 			const basis::ElementBases elm = bases[local_boundary.element_id()];
 			const basis::ElementBases g = geom_bases[local_boundary.element_id()];
@@ -519,6 +507,9 @@ namespace polyfem::mesh
 				g.eval_geom_mapping(UV, V_local);
 				assert(V_local.rows() == U.rows());
 
+				// std::cout << "UV: " << UV << std::endl;
+				// std::cout << "V_local: " << V_local << std::endl;
+
 				const int offset = proxy_vertices_list.size() / dim;
 				for (const double x : V_local.reshaped<Eigen::RowMajor>())
 					proxy_vertices_list.push_back(x);
@@ -605,6 +596,9 @@ namespace polyfem::mesh
 				Eigen::MatrixXd V_local;
 				g.eval_geom_mapping(UV, V_local);
 				assert(V_local.rows() == U.rows());
+
+				// std::cout << "UV: " << UV << std::endl;
+				// std::cout << "V_local: " << V_local << std::endl;
 
 				const int offset = proxy_vertices_list.size() / dim;
 				for (const double x : V_local.reshaped<Eigen::RowMajor>())

@@ -39,7 +39,11 @@ namespace polyfem
 
 	void State::solve_transient_tensor_nonlinear(const int time_steps, const double t0, const double dt, Eigen::MatrixXd &sol)
 	{
+		std::cout << "Check solve_transient_tensor_nonlinear." << std::endl;
+
 		init_nonlinear_tensor_solve(sol, t0 + dt);
+
+		std::cout << "solve_transient_tensor_nonlinear: Checkpoint 1" << std::endl;
 
 		// Write the total energy to a CSV file
 		int save_i = 0;
@@ -137,6 +141,8 @@ namespace polyfem
 
 	void State::init_nonlinear_tensor_solve(Eigen::MatrixXd &sol, const double t, const bool init_time_integrator)
 	{
+		std::cout << "Check in init_nonlinear_tensor_solve" << std::endl;
+
 		assert(sol.cols() == 1);
 		assert(!assembler->is_linear() || is_contact_enabled()); // non-linear
 		assert(!problem->is_scalar());                           // tensor
@@ -167,6 +173,7 @@ namespace polyfem
 				log_and_throw_error("Unable to solve, initial solution has intersections!");
 			}
 		}
+		std::cout << "init_nonlinear_tensor_solve: Finish checking initial intersections" << std::endl;
 
 		// --------------------------------------------------------------------
 		// Initialize time integrator
@@ -203,6 +210,7 @@ namespace polyfem
 		{
 			solve_data.time_integrator = nullptr;
 		}
+		std::cout << "init_nonlinear_tensor_solve: Finish Initialize time integrator" << std::endl;
 
 		// --------------------------------------------------------------------
 		// Initialize forms
@@ -210,7 +218,9 @@ namespace polyfem
 		damping_assembler = std::make_shared<assembler::ViscousDamping>();
 		set_materials(*damping_assembler);
 
+		std::cout << "Initialize forms: check 1" << std::endl;
 		elasticity_pressure_assembler = build_pressure_assembler();
+		std::cout << "Initialize forms: check 2" << std::endl;
 
 		// for backward solve
 		damping_prev_assembler = std::make_shared<assembler::ViscousDampingPrev>();
@@ -260,6 +270,7 @@ namespace polyfem
 
 		if (solve_data.contact_form != nullptr)
 			solve_data.contact_form->save_ccd_debug_meshes = args["output"]["advanced"]["save_ccd_debug_meshes"];
+		std::cout << "init_nonlinear_tensor_solve: Finish Initialize forms" << std::endl;
 
 		// --------------------------------------------------------------------
 		// Initialize nonlinear problems
@@ -270,6 +281,7 @@ namespace polyfem
 			*solve_data.rhs_assembler, periodic_bc, t, forms);
 		solve_data.nl_problem->init(sol);
 		solve_data.nl_problem->update_quantities(t, sol);
+		std::cout << "init_nonlinear_tensor_solve: Finish Initialize nonlinear problems" << std::endl;
 		// --------------------------------------------------------------------
 
 		stats.solver_info = json::array();

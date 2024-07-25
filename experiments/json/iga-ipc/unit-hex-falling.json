@@ -29,7 +29,8 @@
         "discr_order": 2,
         "basis_type": "Spline",
         "advanced": {
-            "bc_method": "sample"
+            "bc_method": "sample",
+            "count_flipped_els": false
         }
     },
     "boundary_conditions": {
