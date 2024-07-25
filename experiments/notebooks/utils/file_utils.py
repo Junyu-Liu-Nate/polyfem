@@ -2,7 +2,30 @@ import numpy as np
 import h5py
 import scipy.sparse as sp
 
-#%% Load mesh
+#%% Load and convert mesh formats
+def txt_to_obj(txt_path, obj_path):
+    with open(txt_path, 'r') as file:
+        lines = file.readlines()
+    
+    vertices = []
+    faces = []
+    
+    # Process each line to separate vertices and faces
+    for line in lines:
+        parts = line.split()
+        if parts[0] == 'v':
+            # Add a zero for the z-coordinate
+            vertices.append(f"v {parts[1]} {parts[2]} 0.0\n")
+        else:
+            # Reformat faces to be 1-indexed and properly spaced
+            faces.append(f"f {' '.join(parts)}\n")
+    
+    # Write to an .obj file
+    with open(obj_path, 'w') as file:
+        file.writelines(vertices)
+        file.writelines(faces)
+
+    print(f"Converted {txt_path} to {obj_path} successfully.")
 
 #%% Save mesh
 ### Save mesh as .obj format

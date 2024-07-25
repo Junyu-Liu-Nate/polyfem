@@ -65,9 +65,9 @@ namespace polyfem::mesh
 	void regular_grid_triangle_barycentric_coordinates(
 		const int n, Eigen::MatrixXd &V, Eigen::MatrixXi &F);
 
-	//-------------------- Added for hex --------------------//
-	void regular_grid_quadrilateral_barycentric_coordinates(
-		int n, Eigen::MatrixXd &UV, Eigen::MatrixXi &F_local);
+	/// Newly added for hex mesh
+	void regular_grid_quad_barycentric_coordinates(
+		const int n, Eigen::MatrixXd &V, Eigen::MatrixXi &F);
 
 	/// @brief Tessilate a triangle mesh (V, F) with regular grids of triangles of maximum edge length
 	/// @param V vertices

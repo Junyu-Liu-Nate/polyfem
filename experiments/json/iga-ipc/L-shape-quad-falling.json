@@ -3,9 +3,8 @@
         "mesh": "../../mesh/iga-ipc/2d-quad/L_shape_dense.obj",
         "transformation": {
             "translation": [0, 5, 0],
-            "rotation": 0
-        },
-        "volume_selection": 1
+            "rotation": 180
+        }
     },{
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true

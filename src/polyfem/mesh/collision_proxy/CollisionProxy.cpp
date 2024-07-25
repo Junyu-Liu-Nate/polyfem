@@ -53,6 +53,55 @@ namespace polyfem::mesh
 			return uvw;
 		}
 
+		/// @brief Newly added: Convert from 2D barycentric coordinates (BCs) of a quad face to 3D BCs in a hex.
+		/// @param uv 2D BCs of a quadrilateral face
+		/// @param local_fid which face do the 2D BCs correspond to
+		/// @return 3D BCs in the hex
+		Eigen::MatrixXd uv_to_uvw_hex(const Eigen::MatrixXd &uv, const int local_fid)
+		{
+			assert(uv.cols() == 2); // Ensure uv is two-dimensional
+
+			Eigen::MatrixXd uvw = Eigen::MatrixXd::Zero(uv.rows(), 3);
+			// Convert 2D BCs to 3D BCs based on the face index
+			switch (local_fid)
+			{
+			case 1:  // Front face
+				uvw.col(0) = Eigen::VectorXd::Ones(uv.rows());
+				uvw.col(1) = uv.col(0);
+				uvw.col(2) = uv.col(1);
+				break;
+			case 0:  // Back face
+				uvw.col(0) = Eigen::VectorXd::Zero(uv.rows());
+				uvw.col(1) = Eigen::VectorXd::Ones(uv.rows()) - uv.col(0);
+				uvw.col(2) = uv.col(1);
+				break;
+			case 2:  // Left face
+				uvw.col(0) = uv.col(0);
+				uvw.col(1) = Eigen::VectorXd::Zero(uv.rows());
+				uvw.col(2) = uv.col(1);
+				break;
+			case 3:  // Right face
+				uvw.col(0) = Eigen::VectorXd::Ones(uv.rows()) - uv.col(0);
+				uvw.col(1) = Eigen::VectorXd::Ones(uv.rows());
+				uvw.col(2) = uv.col(1);
+				break;
+			case 4:  // Bottom face
+				uvw.col(0) = Eigen::VectorXd::Ones(uv.rows()) - uv.col(0);
+				uvw.col(1) = uv.col(1);
+				uvw.col(2) = Eigen::VectorXd::Zero(uv.rows());
+				break;
+			case 5:  // Top face
+				uvw.col(0) = Eigen::VectorXd::Ones(uv.rows()) - uv.col(1);
+				uvw.col(1) = uv.col(0);
+				uvw.col(2) = Eigen::VectorXd::Ones(uv.rows());
+				break;
+			default:
+				log_and_throw_error("Invalid local_fid: {}", local_fid);
+			}
+
+			return uvw;
+		}
+
 		/// @brief Newly added: Convert 1D barycentric coordinates (BCs) of an edge to 2D BCs in a tri.
 		Eigen::MatrixXd u_to_uv_tri(const Eigen::MatrixXd &u, const int local_eid) {
 			assert(u.cols() == 1);  // Ensure u is one-dimensional
@@ -233,6 +282,114 @@ namespace polyfem::mesh
 		// exit(EXIT_SUCCESS); // Used for debug
 	}
 
+	void saveSurfaceMesh(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_faces) {
+		std::ofstream file(filename);
+		if (!file.is_open()) {
+			std::cerr << "Error opening file for writing: " << filename << std::endl;
+			return;
+		}
+
+		// Write vertices to file
+		for (int i = 0; i < proxy_vertices.rows(); ++i) {
+			file << "v " << proxy_vertices(i, 0) << " " << proxy_vertices(i, 1) << " " << proxy_vertices(i, 2) << std::endl;
+		}
+
+		// Write faces to file
+		for (int i = 0; i < proxy_faces.rows(); ++i) {
+			file << "f";
+			for (int j = 0; j < proxy_faces.cols(); ++j) {
+				// .obj files are 1-indexed, so add 1 to each index
+				file << " " << (proxy_faces(i, j) + 1);
+			}
+			file << std::endl;
+		}
+
+		file.close();
+	}
+
+	void build_collision_proxy_hex(
+		const std::vector<basis::ElementBases> &bases,
+		const std::vector<basis::ElementBases> &geom_bases,
+		const std::vector<LocalBoundary> &total_local_boundary,
+		const int n_bases,
+		const int dim,
+		const double max_edge_length,
+		Eigen::MatrixXd &proxy_vertices,
+		Eigen::MatrixXi &proxy_faces,
+		std::vector<Eigen::Triplet<double>> &displacement_map_entries,
+		const CollisionProxyTessellation tessellation)
+	{
+		std::vector<double> proxy_vertices_list;
+		std::vector<int> proxy_faces_list;
+		std::vector<Eigen::Triplet<double>> displacement_map_entries_tmp;
+
+		Eigen::MatrixXd UV;
+		Eigen::MatrixXi F_local;
+
+		if (tessellation == CollisionProxyTessellation::REGULAR)
+		{
+			int n_segments = std::ceil(1.0 / max_edge_length);
+			regular_grid_quad_barycentric_coordinates(n_segments, UV, F_local);
+		}
+		std::cout << "UV:" << UV << std::endl;
+		std::cout << "F_local:" << F_local << std::endl;
+
+		for (const LocalBoundary &local_boundary : total_local_boundary)
+		{
+			std::cout << "Processing LocalBoundary for element: " << local_boundary.element_id() << std::endl;
+			
+			if (local_boundary.type() != BoundaryType::QUAD)
+				log_and_throw_error("build_collision_proxy() is only implemented for hexahedra!");
+ 
+			const basis::ElementBases elm = bases[local_boundary.element_id()];
+			const basis::ElementBases g = geom_bases[local_boundary.element_id()];
+			for (int fi = 0; fi < local_boundary.size(); fi++)
+			{
+				const int local_fid = local_boundary.local_primitive_id(fi);
+				// std::cout << "Processing face " << fi << " with local_fid: " << local_fid << std::endl;
+
+				Eigen::MatrixXd UVW = uv_to_uvw_hex(UV, local_fid);
+
+				Eigen::MatrixXd V_local;
+				g.eval_geom_mapping(UVW, V_local);
+				assert(V_local.rows() == UV.rows());
+
+				// std::cout << "UVW: " << UVW << std::endl;
+				// std::cout << "V_local: " << V_local << std::endl;
+
+				const int offset = proxy_vertices_list.size() / dim;
+				for (const double x : V_local.reshaped<Eigen::RowMajor>())
+					proxy_vertices_list.push_back(x);
+				for (const int i : F_local.reshaped<Eigen::RowMajor>())
+					proxy_faces_list.push_back(i + offset);
+
+				for (const basis::Basis &basis : elm.bases)
+				{
+					assert(basis.global().size() == 1);
+					const int basis_id = basis.global()[0].index;
+
+					const Eigen::MatrixXd basis_values = basis(UVW);
+
+					for (int i = 0; i < basis_values.size(); i++)
+					{
+						displacement_map_entries_tmp.emplace_back(
+							offset + i, basis_id, basis_values(i));
+					}
+				}
+			}
+		}
+
+		// stitch collision proxy together
+		stitch_mesh(
+			Eigen::Map<RowMajorMatrixX<double>>(proxy_vertices_list.data(), proxy_vertices_list.size() / dim, dim),
+			Eigen::Map<RowMajorMatrixX<int>>(proxy_faces_list.data(), proxy_faces_list.size() / dim, dim),
+			displacement_map_entries_tmp,
+			proxy_vertices, proxy_faces, displacement_map_entries);
+
+		//--- For debug only
+		saveSurfaceMesh("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_hex_surface.obj", proxy_vertices, proxy_faces);
+	}
+
 	//--------------- Added for 2D tri and quad mesh ---------------//
 	//--- Save upsampled mesh function for debug
 	void saveAsOBJ(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_edges) {
@@ -362,7 +519,7 @@ namespace polyfem::mesh
 			proxy_vertices, proxy_edges, displacement_map_entries);
 
 		//--- For debug only
-		// saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh.obj", proxy_vertices, proxy_edges);
+		saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_tri.obj", proxy_vertices, proxy_edges);
 		// exit(EXIT_SUCCESS); // Used for debug
 	}
 
@@ -449,7 +606,7 @@ namespace polyfem::mesh
 			proxy_vertices, proxy_edges, displacement_map_entries);
 
 		//--- For debug only
-		// saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh.obj", proxy_vertices, proxy_edges);
+		saveAsOBJ("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_quad.obj", proxy_vertices, proxy_edges);
 		// exit(EXIT_SUCCESS); // Used for debug
 	}
 

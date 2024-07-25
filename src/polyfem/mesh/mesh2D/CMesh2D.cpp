@@ -24,6 +24,8 @@ namespace polyfem
 	{
 		void CMesh2D::refine(const int n_refinement, const double t)
 		{
+			std::cout << "Check is CMesh2D::refine." << std::endl;
+			
 			// return;
 			if (n_refinement <= 0)
 			{

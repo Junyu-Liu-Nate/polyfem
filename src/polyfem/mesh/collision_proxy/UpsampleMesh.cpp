@@ -211,6 +211,39 @@ namespace polyfem::mesh
 		F.conservativeResize(fi, Eigen::NoChange);
 	}
 
+	void regular_grid_quad_barycentric_coordinates(
+		const int n, Eigen::MatrixXd &V, Eigen::MatrixXi &F)
+	{
+		const double delta = 1.0 / (n - 1);
+		V.resize(n * n, 2); // Storage for vertex positions
+		F.resize(2 * (n - 1) * (n - 1), 3); // Each cell in the grid results in two triangles
+
+		// Populate the vertex array
+		int vi = 0;
+		for (int i = 0; i < n; ++i) {
+			for (int j = 0; j < n; ++j) {
+				V.row(vi++) << i * delta, j * delta;
+			}
+		}
+
+		// Create triangular faces
+		int fi = 0;
+		for (int i = 0; i < n - 1; ++i) {
+			for (int j = 0; j < n - 1; ++j) {
+				int v0 = i * n + j;
+				int v1 = v0 + 1;
+				int v2 = (i + 1) * n + j + 1;
+				int v3 = v2 - 1;
+
+				// Each quad is split into two triangles
+				// First triangle
+				F.row(fi++) << v0, v2, v1;
+				// Second triangle
+				F.row(fi++) << v0, v3, v2;
+			}
+		}
+	}
+
 	void regular_grid_tessellation(
 		const Eigen::MatrixXd &V,
 		const Eigen::MatrixXi &F,
@@ -239,35 +272,6 @@ namespace polyfem::mesh
 		}
 
 		stitch_mesh(V_tmp, F_tmp, V_out, F_out);
-	}
-
-	//----------- Added for hex -----------//
-	void regular_grid_quadrilateral_barycentric_coordinates(
-		int n, Eigen::MatrixXd &UV, Eigen::MatrixXi &F_local) {
-		int num_points_per_side = std::sqrt(n);
-		UV.resize(num_points_per_side * num_points_per_side, 2);
-		F_local.resize((num_points_per_side - 1) * (num_points_per_side - 1), 4);
-
-		double step = 1.0 / (num_points_per_side - 1);
-		int vertex_idx = 0, face_idx = 0;
-		for (int i = 0; i < num_points_per_side; ++i) {
-			for (int j = 0; j < num_points_per_side; ++j) {
-				UV(vertex_idx, 0) = j * step;
-				UV(vertex_idx, 1) = i * step;
-				vertex_idx++;
-			}
-		}
-
-		for (int i = 0; i < num_points_per_side - 1; ++i) {
-			for (int j = 0; j < num_points_per_side - 1; ++j) {
-				int idx = i * num_points_per_side + j;
-				F_local(face_idx, 0) = idx;
-				F_local(face_idx, 1) = idx + 1;
-				F_local(face_idx, 2) = idx + num_points_per_side + 1;
-				F_local(face_idx, 3) = idx + num_points_per_side;
-				face_idx++;
-			}
-		}
 	}
 
 	// ------------------------------------------------------------------------

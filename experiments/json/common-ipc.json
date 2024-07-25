@@ -8,7 +8,10 @@
     },
     "contact": {
         "enabled": true,
-        "dhat": 0.001
+        "dhat": 0.001,
+        "collision_mesh": {
+            "max_edge_length": 0.5
+        }
     },
     "solver": {
         "linear": {

@@ -22,6 +22,8 @@ namespace polyfem
 
 		void NCMesh2D::refine(const int n_refinement, const double t)
 		{
+			std::cout << "Check is NCMesh2D::refine." << std::endl;
+			
 			if (n_refinement <= 0)
 				return;
 			std::vector<bool> refine_mask(elements.size(), false);

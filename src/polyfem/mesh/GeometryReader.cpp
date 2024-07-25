@@ -87,8 +87,11 @@ namespace polyfem::mesh
 					log_and_throw_error("Unable to apply stored nonuniform volume_selection because n_refs={} > 0!", n_refs);
 
 			logger().info("Performing global h-refinement with {} refinements", n_refs);
+			std::cout << "Check is Performing global h-refinement." << std::endl;
 			mesh->refine(n_refs, refinement_location);
 			mesh->set_body_ids(std::vector<int>(mesh->n_elements(), uniform_value));
+
+			mesh->save("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/refined_mesh_1.obj");
 		}
 
 		// --------------------------------------------------------------------
@@ -221,7 +224,7 @@ namespace polyfem::mesh
 		}
 
 		// --------------------------------------------------------------------
-
+		mesh->save("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/refined_mesh_2.obj");
 		return mesh;
 	}
 

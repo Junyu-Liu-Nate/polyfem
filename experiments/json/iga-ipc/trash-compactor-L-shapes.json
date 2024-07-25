@@ -4,10 +4,18 @@
         "mesh": "../../mesh/iga-ipc/2d-quad/L_shape_dense.obj",
         "transformation": {
             "translation": [-0.48, 0, 0],
-            "rotation": 0,
+            "rotation": 45,
             "scale": 0.2
         },
         "volume_selection": 1
+    }, {
+        "mesh": "../../mesh/iga-ipc/2d-quad/L_shape_dense.obj",
+        "transformation": {
+            "translation": [0.04, -0.48, 0],
+            "rotation": 30,
+            "scale": 0.2
+        },
+        "volume_selection": 2
     }, {
         "mesh": "../../mesh/iga-ipc/2d-quad/L_shape_dense.obj",
         "transformation": {
@@ -15,8 +23,8 @@
             "rotation": 60,
             "scale": 0.2
         },
-        "volume_selection": 2
-    }, {
+        "volume_selection": 3
+    },{
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true,
         "transformation": {

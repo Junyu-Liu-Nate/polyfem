@@ -1,11 +1,10 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-sub3-irregular.obj",
+        "mesh": "../../mesh/ipc/2d-tri/L_shape_dense_tri.obj",
         "transformation": {
             "translation": [0, 5, 0],
-            "rotation": 0
-        },
-        "n_refs": 0
+            "rotation": 180
+        }
     },{
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true
@@ -29,10 +28,8 @@
     "space": {
         "discr_order": 2,
         "basis_type": "Spline",
-        "poly_basis_type": "MeanValue",
         "advanced": {
-            "bc_method": "sample",
-            "count_flipped_els": false
+            "bc_method": "sample"
         }
     },
     "boundary_conditions": {
@@ -71,7 +68,7 @@
                 "contact_forces": true,
                 "friction_forces": true
             },
-            "vismesh_rel_area": 1e-05
+            "vismesh_rel_area": 1e-03
         },
         "advanced": {
             "save_solve_sequence_debug": false,

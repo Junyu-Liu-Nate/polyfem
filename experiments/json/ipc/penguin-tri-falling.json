@@ -1,11 +1,11 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-sub3-irregular.obj",
+        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/penguin-tri.obj",
         "transformation": {
-            "translation": [0, 5, 0],
+            "translation": [0, 0, 0],
             "rotation": 0
         },
-        "n_refs": 0
+        "volume_selection": 1
     },{
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true
@@ -28,11 +28,9 @@
     },
     "space": {
         "discr_order": 2,
-        "basis_type": "Spline",
-        "poly_basis_type": "MeanValue",
+        "basis_type": "Lagrange",
         "advanced": {
-            "bc_method": "sample",
-            "count_flipped_els": false
+            "bc_method": "sample"
         }
     },
     "boundary_conditions": {

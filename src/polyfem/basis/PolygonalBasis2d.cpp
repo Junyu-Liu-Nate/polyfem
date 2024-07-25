@@ -360,6 +360,7 @@ namespace polyfem
 			// Step 1: Compute integral constraints
 			Eigen::MatrixXd basis_integrals;
 			compute_integral_constraints(assembler, mesh, n_bases, bases, gbases, basis_integrals);
+			std::cout << "PolygonalBasis2d::build_bases: finish setp 1" << std::endl;
 
 			// Step 2: Compute the rest =)
 			PolygonQuadrature poly_quadr;
@@ -477,6 +478,7 @@ namespace polyfem
 
 				// Polygon boundary after geometric mapping from neighboring elements
 				mapped_boundary[e] = collocation_points;
+				std::cout << "PolygonalBasis2d::build_bases: finish setp 1" << std::endl;
 			}
 
 			return 0;

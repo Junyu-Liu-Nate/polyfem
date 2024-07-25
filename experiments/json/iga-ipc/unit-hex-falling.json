@@ -1,6 +1,6 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/2d-quad/2d-quad-sub3-irregular.obj",
+        "mesh": "../../mesh/iga-ipc/3d-hex/casting.mesh",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 0
@@ -17,7 +17,7 @@
         "friction_coefficient": 0.1,
         "epsv": 1e-3,
         "collision_mesh": {
-            "max_edge_length": 0.5
+            "max_edge_length": 0.3
         }
     },
     
@@ -29,7 +29,6 @@
     "space": {
         "discr_order": 2,
         "basis_type": "Spline",
-        "poly_basis_type": "MeanValue",
         "advanced": {
             "bc_method": "sample",
             "count_flipped_els": false

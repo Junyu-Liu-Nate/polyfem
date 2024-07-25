@@ -20,7 +20,7 @@
         }],
         "transformation": {
             "rotation": 40,
-            "scale": 0.008394050297,
+            "scale": 0.5,
             "translation": [0.4547526249, 0.5227239301, -0.02286748313]
         },
         "volume_selection": 1

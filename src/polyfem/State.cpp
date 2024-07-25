@@ -1206,6 +1206,7 @@ namespace polyfem
 
 		if (iso_parametric())
 		{
+			std::cout << "Computing polygonal bases: check is iso_parametric." << std::endl;
 			if (mesh->is_volume())
 			{
 				if (args["space"]["poly_basis_type"] == "MeanValue" || args["space"]["poly_basis_type"] == "Wachspress")
@@ -1225,7 +1226,7 @@ namespace polyfem
 					polys_3d);
 			}
 			else
-			{
+			{	
 				if (args["space"]["poly_basis_type"] == "MeanValue")
 				{
 					new_bases = basis::MVPolygonalBasis2d::build_bases(
@@ -1250,6 +1251,7 @@ namespace polyfem
 				}
 				else
 				{
+					std::cout << "Computing polygonal bases: check is 2D harmonic." << std::endl;
 					assert(assembler->is_linear());
 					new_bases = basis::PolygonalBasis2d::build_bases(
 						*dynamic_cast<LinearAssembler *>(assembler.get()),
@@ -1498,6 +1500,8 @@ namespace polyfem
 		Eigen::MatrixXi collision_edges, collision_triangles;
 		std::vector<Eigen::Triplet<double>> displacement_map_entries;
 
+		std::cout << "Check is building collision mesh" << std::endl;
+
 		if (args.contains("/contact/collision_mesh"_json_pointer)
 			&& args.at("/contact/collision_mesh/enabled"_json_pointer).get<bool>())
 		{
@@ -1571,11 +1575,11 @@ namespace polyfem
 							collision_mesh_args["tessellation_type"]);
 					}
 					else {
-						// build_collision_proxy_hex(
-						// 	bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
-						// 	collision_mesh_args["max_edge_length"], collision_vertices,
-						// 	collision_triangles, displacement_map_entries,
-						// 	collision_mesh_args["tessellation_type"]);
+						build_collision_proxy_hex(
+							bases, geom_bases, total_local_boundary, n_bases, mesh.dimension(),
+							collision_mesh_args["max_edge_length"], collision_vertices,
+							collision_triangles, displacement_map_entries,
+							collision_mesh_args["tessellation_type"]);
 					}
 				}
 				else {
@@ -1612,7 +1616,7 @@ namespace polyfem
 				mesh, n_bases - obstacle.n_vertices(), bases, total_local_boundary,
 				collision_vertices, collision_edges, collision_triangles, displacement_map_entries);
 		}
-
+		
 		// n_bases already contains the obstacle vertices
 		const int num_fe_nodes = n_bases - obstacle.n_vertices();
 		const int num_fe_collision_vertices = collision_vertices.rows();

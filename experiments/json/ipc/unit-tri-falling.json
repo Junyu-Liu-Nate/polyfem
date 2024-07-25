@@ -1,11 +1,10 @@
 {
     "geometry": [{
-        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/2d-tri-coarse.obj",
+        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/2d-tri-sub3-irregular.obj",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 0
-        },
-        "volume_selection": 1
+        }
     },{
         "mesh": "../../mesh/iga-ipc/plane.obj",
         "is_obstacle": true
@@ -62,14 +61,14 @@
         "paraview": {
             "file_name": "sim.pvd",
             "surface": true,
-            "high_order_mesh": true,
+            "high_order_mesh": false,
             "options": {
                 "material": true,
                 "body_ids": true,
                 "contact_forces": true,
                 "friction_forces": true
             },
-            "vismesh_rel_area": 10000000
+            "vismesh_rel_area": 1e-05
         },
         "advanced": {
             "save_solve_sequence_debug": false,
