@@ -89,3 +89,5 @@ scripts/*.json
 .history/
 .vscode/
 experiments/output/
+polyspline-data/
+pref-data/
