@@ -173,6 +173,7 @@ namespace polyfem::mesh
 		}
 	} // namespace
 
+	//--------------- For tet mesh ---------------//
 	void build_collision_proxy(
 		const std::vector<basis::ElementBases> &bases,
 		const std::vector<basis::ElementBases> &geom_bases,
@@ -270,6 +271,7 @@ namespace polyfem::mesh
 			proxy_vertices, proxy_faces, displacement_map_entries);
 	}
 
+	//--------------- For 2D hex mesh ---------------//
 	//--- Debug: Save upsampled mesh function for debug
 	void saveSurfaceMesh(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_faces) {
 		std::ofstream file(filename);
@@ -341,14 +343,10 @@ namespace polyfem::mesh
 			int n_segments = std::ceil(1.0 / max_edge_length);
 			regular_grid_quad_barycentric_coordinates(n_segments, UV, F_local);
 		}
-		// std::cout << "UV:" << UV << std::endl;
-		// std::cout << "F_local:" << F_local << std::endl;
 
 		//--- Itetrate boundary elements
 		for (const LocalBoundary &local_boundary : total_local_boundary)
-		{
-			// std::cout << "Processing LocalBoundary for element: " << local_boundary.element_id() << std::endl;
-			
+		{			
 			if (local_boundary.type() != BoundaryType::QUAD)
 				log_and_throw_error("The input mesh should be hex only mesh!");
  
@@ -357,7 +355,6 @@ namespace polyfem::mesh
 			for (int fi = 0; fi < local_boundary.size(); fi++)
 			{
 				const int local_fid = local_boundary.local_primitive_id(fi);
-				// std::cout << "Processing face " << fi << " with local_fid: " << local_fid << std::endl;
 
 				Eigen::MatrixXd UVW = uv_to_uvw_hex(UV, local_fid);
 
@@ -365,16 +362,12 @@ namespace polyfem::mesh
 				g.eval_geom_mapping(UVW, V_local);
 				assert(V_local.rows() == UV.rows());
 
-				// std::cout << "UVW: " << UVW << std::endl;
-				// std::cout << "V_local: " << V_local << std::endl;
-
 				const int offset = proxy_vertices_list.size() / dim;
 				for (const double x : V_local.reshaped<Eigen::RowMajor>())
 					proxy_vertices_list.push_back(x);
 				for (const int i : F_local.reshaped<Eigen::RowMajor>())
 					proxy_faces_list.push_back(i + offset);
 
-				// std::cout << "elm.bases.size(): " << elm.bases.size() << std::endl;
 				for (const basis::Basis &basis : elm.bases)
 				{
 					assert(basis.global().size() == 1);
@@ -399,7 +392,7 @@ namespace polyfem::mesh
 			proxy_vertices, proxy_faces, displacement_map_entries);
 
 		//--- For debug only
-		saveSurfaceMesh("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_hex_surface.obj", proxy_vertices, proxy_faces);
+		// saveSurfaceMesh("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_hex_surface.obj", proxy_vertices, proxy_faces);
 
 		// Eigen::MatrixXi collision_edges;
 		// igl::edges(proxy_faces, collision_edges);
@@ -409,7 +402,7 @@ namespace polyfem::mesh
 		// saveEdgeMesh("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_hex_edge.obj", proxy_vertices, collision_edges);
 	}
 
-	//--------------- Added for 2D tri and quad mesh ---------------//
+	//--------------- For 2D tri and quad mesh ---------------//
 	void saveAsOBJ(const std::string& filename, const Eigen::MatrixXd& proxy_vertices, const Eigen::MatrixXi& proxy_edges) {
 		std::ofstream file(filename);
 		if (!file.is_open()) {

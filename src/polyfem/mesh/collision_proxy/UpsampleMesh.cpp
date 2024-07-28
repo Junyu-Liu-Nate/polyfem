@@ -123,7 +123,7 @@ namespace polyfem::mesh
 				V_out.row(V_out.rows() - 1) = V.row(i);
 			}
 		}
-		std::cout << "Number of rows in V_out: " << V_out.rows() << std::endl;
+		// std::cout << "Number of rows in V_out: " << V_out.rows() << std::endl;
 
 		//--- Update faces
 		// Note: Faces themselves don't have duplications, just need to remap the vertex index
@@ -133,17 +133,17 @@ namespace polyfem::mesh
 				F_out(i, j) = vertex_map[F(i, j)];
 			}
 		}
-		std::cout << "Number of rows in F_out: " << F_out.rows() << std::endl;
+		// std::cout << "Number of rows in F_out: " << F_out.rows() << std::endl;
 
 		//--- Update weights
-		std::cout << "Size of W: " << W.size() << std::endl;
+		// std::cout << "Size of W: " << W.size() << std::endl;
 		int max_row = -1, max_col = -1;
 		for (const auto& triplet : W) {
 			max_row = std::max(max_row, triplet.row());
 			max_col = std::max(max_col, triplet.col());
 		}
-		std::cout << "W: Maximum row size: " << max_row + 1 << std::endl;
-		std::cout << "W: Maximum column size: " << max_col + 1 << std::endl;
+		// std::cout << "W: Maximum row size: " << max_row + 1 << std::endl;
+		// std::cout << "W: Maximum column size: " << max_col + 1 << std::endl;
 
 		// std::cout << "Size of W_out: " << W_out.size() << std::endl;
 		std::set<std::pair<int, int>> existing_entries;  // Set to check for existing (row, col) pairs
@@ -162,35 +162,35 @@ namespace polyfem::mesh
 		}
 
 		//---- Debug: print out W_out size
-		std::cout << "Size of W_out: " << W_out.size() << std::endl;
+		// std::cout << "Size of W_out: " << W_out.size() << std::endl;
 		max_row = -1; max_col = -1;
 		for (const auto& triplet : W_out) {
 			max_row = std::max(max_row, triplet.row());
 			max_col = std::max(max_col, triplet.col());
 		}
-		std::cout << "W_out: Maximum row size: " << max_row + 1 << std::endl;
-		std::cout << "W_out: Maximum column size: " << max_col + 1 << std::endl;
+		// std::cout << "W_out: Maximum row size: " << max_row + 1 << std::endl;
+		// std::cout << "W_out: Maximum column size: " << max_col + 1 << std::endl;
 
 		//---- Debug: check whether all row/col index appear at least once
-		// Create containers to track presence of indices
-		std::vector<bool> row_presence(max_row + 1, false);
-		std::vector<bool> col_presence(max_col + 1, false);
-		// Mark the presence of row and column indices
-		for (const auto& triplet : W_out) {
-			row_presence[triplet.row()] = true;
-			col_presence[triplet.col()] = true;
-		}
-		// Check if any index is missing
-		for (int i = 0; i <= max_row; ++i) {
-			if (!row_presence[i]) {
-				std::cout << "Row index " << i << " is missing in W_out." << std::endl;
-			}
-		}
-		for (int i = 0; i <= max_col; ++i) {
-			if (!col_presence[i]) {
-				std::cout << "Column index " << i << " is missing in W_out." << std::endl;
-			}
-		}
+		// // Create containers to track presence of indices
+		// std::vector<bool> row_presence(max_row + 1, false);
+		// std::vector<bool> col_presence(max_col + 1, false);
+		// // Mark the presence of row and column indices
+		// for (const auto& triplet : W_out) {
+		// 	row_presence[triplet.row()] = true;
+		// 	col_presence[triplet.col()] = true;
+		// }
+		// // Check if any index is missing
+		// for (int i = 0; i <= max_row; ++i) {
+		// 	if (!row_presence[i]) {
+		// 		std::cout << "Row index " << i << " is missing in W_out." << std::endl;
+		// 	}
+		// }
+		// for (int i = 0; i <= max_col; ++i) {
+		// 	if (!col_presence[i]) {
+		// 		std::cout << "Column index " << i << " is missing in W_out." << std::endl;
+		// 	}
+		// }
 	}
 
 	//------ Added for edge boudnary
