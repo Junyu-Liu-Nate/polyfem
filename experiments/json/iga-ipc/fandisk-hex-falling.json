@@ -1,6 +1,6 @@
 {
     "geometry": [{
-        "mesh": "../../mesh/iga-ipc/3d-hex/casting.mesh",
+        "mesh": "../../mesh/iga-ipc/3d-hex/fandisk.mesh",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 0
