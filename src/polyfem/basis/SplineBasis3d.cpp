@@ -1023,15 +1023,223 @@ namespace polyfem
 			}
 		} // namespace
 
-		std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> SplineBasis3d::build_bases(const Mesh3D &mesh,
+		// std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> SplineBasis3d::build_bases(const Mesh3D &mesh,
+		// 							   const std::string &assembler,
+		// 							   const int quadrature_order, const int mass_quadrature_order, std::vector<ElementBases> &bases, std::vector<LocalBoundary> &local_boundary, std::map<int, InterfaceData> &poly_face_to_data)
+		// {
+		// 	using std::max;
+		// 	assert(mesh.is_volume());
+
+		// 	MeshNodes mesh_nodes(mesh, true, true, 1, 1, 1);
+		// 	// auto mesh_nodes = std::make_shared<polyfem::mesh::MeshNodes>(mesh, true, true, 1, 1);
+
+		// 	const int n_els = mesh.n_elements();
+		// 	bases.resize(n_els);
+		// 	local_boundary.clear();
+
+		// 	// bounday_nodes.clear();
+
+		// 	// HexQuadrature hex_quadrature;
+
+		// 	std::array<std::array<double, 4>, 3> h_knots;
+		// 	std::array<std::array<double, 4>, 3> v_knots;
+		// 	std::array<std::array<double, 4>, 3> w_knots;
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (!mesh.is_spline_compatible(e))
+		// 			continue;
+
+		// 		SpaceMatrix space;
+
+		// 		build_local_space(mesh, mesh_nodes, e, space, local_boundary, poly_face_to_data);
+
+		// 		ElementBases &b = bases[e];
+		// 		const int real_order = quadrature_order > 0 ? quadrature_order : AssemblerUtils::quadrature_order(assembler, 2, AssemblerUtils::BasisType::SPLINE, 3);
+		// 		const int real_mass_order = mass_quadrature_order > 0 ? mass_quadrature_order : AssemblerUtils::quadrature_order("Mass", 2, AssemblerUtils::BasisType::SPLINE, 3);
+
+		// 		b.set_quadrature([real_order](Quadrature &quad) {
+		// 			HexQuadrature hex_quadrature;
+		// 			hex_quadrature.get_quadrature(real_order, quad);
+		// 		});
+		// 		b.set_mass_quadrature([real_mass_order](Quadrature &quad) {
+		// 			HexQuadrature hex_quadrature;
+		// 			hex_quadrature.get_quadrature(real_mass_order, quad);
+		// 		});
+		// 		// hex_quadrature.get_quadrature(quadrature_order, b.quadrature);
+		// 		b.bases.resize(27);
+
+		// 		b.set_local_node_from_primitive_func([e](const int primitive_id, const Mesh &mesh) {
+		// 			const auto &mesh3d = dynamic_cast<const Mesh3D &>(mesh);
+
+		// 			std::array<std::function<Navigation3D::Index(Navigation3D::Index)>, 6> to_face;
+		// 			mesh3d.to_face_functions(to_face);
+
+		// 			auto start_index = mesh3d.get_index_from_element(e);
+		// 			auto index = start_index;
+
+		// 			int lf;
+		// 			for (lf = 0; lf < mesh3d.n_cell_faces(e); ++lf)
+		// 			{
+		// 				index = to_face[lf](start_index);
+		// 				if (index.face == primitive_id)
+		// 					break;
+		// 			}
+		// 			assert(index.face == primitive_id);
+
+		// 			static constexpr std::array<std::array<int, 9>, 6> face_to_index = {{
+		// 				{{2 * 9 + 0 * 3 + 0, 2 * 9 + 1 * 3 + 0, 2 * 9 + 2 * 3 + 0, 2 * 9 + 0 * 3 + 1, 2 * 9 + 1 * 3 + 1, 2 * 9 + 2 * 3 + 1, 2 * 9 + 0 * 3 + 2, 2 * 9 + 1 * 3 + 2, 2 * 9 + 2 * 3 + 2}}, // 0
+		// 				{{0 * 9 + 0 * 3 + 0, 0 * 9 + 1 * 3 + 0, 0 * 9 + 2 * 3 + 0, 0 * 9 + 0 * 3 + 1, 0 * 9 + 1 * 3 + 1, 0 * 9 + 2 * 3 + 1, 0 * 9 + 0 * 3 + 2, 0 * 9 + 1 * 3 + 2, 0 * 9 + 2 * 3 + 2}}, // 1
+
+		// 				{{0 * 9 + 0 * 3 + 2, 0 * 9 + 1 * 3 + 2, 0 * 9 + 2 * 3 + 2, 1 * 9 + 0 * 3 + 2, 1 * 9 + 1 * 3 + 2, 1 * 9 + 2 * 3 + 2, 2 * 9 + 0 * 3 + 2, 2 * 9 + 1 * 3 + 2, 2 * 9 + 2 * 3 + 2}}, // 2
+		// 				{{0 * 9 + 0 * 3 + 0, 0 * 9 + 1 * 3 + 0, 0 * 9 + 2 * 3 + 0, 1 * 9 + 0 * 3 + 0, 1 * 9 + 1 * 3 + 0, 1 * 9 + 2 * 3 + 0, 2 * 9 + 0 * 3 + 0, 2 * 9 + 1 * 3 + 0, 2 * 9 + 2 * 3 + 0}}, // 3
+
+		// 				{{0 * 9 + 2 * 3 + 0, 0 * 9 + 2 * 3 + 1, 0 * 9 + 2 * 3 + 2, 1 * 9 + 2 * 3 + 0, 1 * 9 + 2 * 3 + 1, 1 * 9 + 2 * 3 + 2, 2 * 9 + 2 * 3 + 0, 2 * 9 + 2 * 3 + 1, 2 * 9 + 2 * 3 + 2}}, // 4
+		// 				{{0 * 9 + 0 * 3 + 0, 0 * 9 + 0 * 3 + 1, 0 * 9 + 0 * 3 + 2, 1 * 9 + 0 * 3 + 0, 1 * 9 + 0 * 3 + 1, 1 * 9 + 0 * 3 + 2, 2 * 9 + 0 * 3 + 0, 2 * 9 + 0 * 3 + 1, 2 * 9 + 0 * 3 + 2}}, // 5
+		// 			}};
+
+		// 			Eigen::VectorXi res(9);
+
+		// 			for (int i = 0; i < 9; ++i)
+		// 				res(i) = face_to_index[lf][i];
+
+		// 			return res;
+		// 		});
+
+		// 		setup_knots_vectors(mesh_nodes, space, h_knots, v_knots, w_knots);
+		// 		// print_local_space(space);
+
+		// 		basis_for_regular_hex(mesh_nodes, space, h_knots, v_knots, w_knots, b);
+		// 		basis_for_irregulard_hex(e, mesh, mesh_nodes, space, h_knots, v_knots, w_knots, b, poly_face_to_data);
+		// 	}
+
+		// 	int n_bases = mesh_nodes.n_nodes();
+
+		// 	std::set<int> face_id;
+		// 	std::set<int> edge_id;
+		// 	std::set<int> vertex_id;
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 			continue;
+
+		// 		ElementBases &b = bases[e];
+
+		// 		const int real_order = quadrature_order > 0 ? quadrature_order : AssemblerUtils::quadrature_order(assembler, 2, AssemblerUtils::BasisType::CUBE_LAGRANGE, 3);
+		// 		const int real_mass_order = mass_quadrature_order > 0 ? mass_quadrature_order : AssemblerUtils::quadrature_order("Mass", 2, AssemblerUtils::BasisType::CUBE_LAGRANGE, 3);
+
+		// 		// hex_quadrature.get_quadrature(quadrature_order, b.quadrature);
+		// 		b.set_quadrature([real_order](Quadrature &quad) {
+		// 			HexQuadrature hex_quadrature;
+		// 			hex_quadrature.get_quadrature(real_order, quad);
+		// 		});
+		// 		b.set_mass_quadrature([real_mass_order](Quadrature &quad) {
+		// 			HexQuadrature hex_quadrature;
+		// 			hex_quadrature.get_quadrature(real_mass_order, quad);
+		// 		});
+
+		// 		b.set_local_node_from_primitive_func([e](const int primitive_id, const Mesh &mesh) {
+		// 			const auto &mesh3d = dynamic_cast<const Mesh3D &>(mesh);
+		// 			Navigation3D::Index index;
+
+		// 			for (int lf = 0; lf < 6; ++lf)
+		// 			{
+		// 				index = mesh3d.get_index_from_element(e, lf, 0);
+		// 				if (index.face == primitive_id)
+		// 					break;
+		// 			}
+		// 			assert(index.face == primitive_id);
+
+		// 			// const auto indices = LagrangeBasis3d::quadr_hex_face_local_nodes(mesh3d, index);
+		// 			const auto indices = LagrangeBasis3d::hex_face_local_nodes(false, 2, mesh3d, index);
+		// 			Eigen::VectorXi res(indices.size());
+
+		// 			for (size_t i = 0; i < indices.size(); ++i)
+		// 				res(i) = indices[i];
+
+		// 			return res;
+		// 		});
+
+		// 		create_q2_nodes(mesh, e, vertex_id, edge_id, face_id, b, local_boundary, n_bases);
+		// 	}
+
+		// 	bool missing_bases = false;
+		// 	do
+		// 	{
+		// 		missing_bases = false;
+		// 		for (int e = 0; e < n_els; ++e)
+		// 		{
+		// 			if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 				continue;
+
+		// 			auto &b = bases[e];
+		// 			if (b.is_complete())
+		// 				continue;
+
+		// 			assign_q2_weights(mesh, e, bases);
+
+		// 			missing_bases = missing_bases || b.is_complete();
+		// 		}
+		// 	} while (missing_bases);
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 			continue;
+
+		// 		const ElementBases &b = bases[e];
+		// 		setup_data_for_polygons(mesh, e, b, poly_face_to_data);
+		// 	}
+
+		// 	// for(int e = 0; e < n_els; ++e)
+		// 	// {
+		// 	//     if(!mesh.is_polytope(e))
+		// 	//         continue;
+
+		// 	//     for (int lf = 0; lf < mesh.n_cell_faces(e); ++lf)
+		// 	//     {
+		// 	//         auto index = mesh.get_index_from_element(e, lf, 0);
+		// 	//         auto index2 = mesh.switch_element(index);
+		// 	//         if (index2.element >= 0) {
+		// 	//             auto &array = poly_face_to_data[index.face].local_indices;
+		// 	//             auto &b = bases[index2.element];
+		// 	//             array.resize(b.bases.size());
+		// 	//             std::iota(array.begin(), array.end(), 0);
+		// 	//         }
+		// 	//     }
+		// 	// }
+
+		// 	for (auto &k : poly_face_to_data)
+		// 	{
+		// 		auto &array = k.second.local_indices;
+		// 		std::sort(array.begin(), array.end());
+		// 		auto it = std::unique(array.begin(), array.end());
+		// 		array.resize(std::distance(array.begin(), it));
+		// 	}
+
+		// 	// return n_bases;
+		// 	// return std::make_tuple(n_bases, mesh_nodes);
+		// 	return std::make_tuple(n_bases, std::make_shared<polyfem::mesh::MeshNodes>(std::move(mesh_nodes)));
+		// }
+
+		int SplineBasis3d::build_bases(const Mesh3D &mesh,
 									   const std::string &assembler,
-									   const int quadrature_order, const int mass_quadrature_order, std::vector<ElementBases> &bases, std::vector<LocalBoundary> &local_boundary, std::map<int, InterfaceData> &poly_face_to_data)
+									   const int quadrature_order, 
+									   const int mass_quadrature_order, 
+									   std::vector<ElementBases> &bases, 
+									   std::vector<LocalBoundary> &local_boundary, 
+									   std::map<int, InterfaceData> &poly_face_to_data,
+									   std::shared_ptr<mesh::MeshNodes> &mesh_nodes)
 		{
 			using std::max;
 			assert(mesh.is_volume());
 
-			MeshNodes mesh_nodes(mesh, true, true, 1, 1, 1);
+			// MeshNodes mesh_nodes(mesh, true, true, 1, 1, 1);
 			// auto mesh_nodes = std::make_shared<polyfem::mesh::MeshNodes>(mesh, true, true, 1, 1);
+			if (!mesh_nodes) {
+				mesh_nodes = std::make_shared<MeshNodes>(mesh, true, true, 1, 1, 1);
+			}
 
 			const int n_els = mesh.n_elements();
 			bases.resize(n_els);
@@ -1052,7 +1260,7 @@ namespace polyfem
 
 				SpaceMatrix space;
 
-				build_local_space(mesh, mesh_nodes, e, space, local_boundary, poly_face_to_data);
+				build_local_space(mesh, *mesh_nodes, e, space, local_boundary, poly_face_to_data);
 
 				ElementBases &b = bases[e];
 				const int real_order = quadrature_order > 0 ? quadrature_order : AssemblerUtils::quadrature_order(assembler, 2, AssemblerUtils::BasisType::SPLINE, 3);
@@ -1106,14 +1314,15 @@ namespace polyfem
 					return res;
 				});
 
-				setup_knots_vectors(mesh_nodes, space, h_knots, v_knots, w_knots);
+				setup_knots_vectors(*mesh_nodes, space, h_knots, v_knots, w_knots);
 				// print_local_space(space);
 
-				basis_for_regular_hex(mesh_nodes, space, h_knots, v_knots, w_knots, b);
-				basis_for_irregulard_hex(e, mesh, mesh_nodes, space, h_knots, v_knots, w_knots, b, poly_face_to_data);
+				basis_for_regular_hex(*mesh_nodes, space, h_knots, v_knots, w_knots, b);
+				basis_for_irregulard_hex(e, mesh, *mesh_nodes, space, h_knots, v_knots, w_knots, b, poly_face_to_data);
 			}
 
-			int n_bases = mesh_nodes.n_nodes();
+			// int n_bases = mesh_nodes.n_nodes();
+			int n_bases = mesh_nodes->n_nodes();
 
 			std::set<int> face_id;
 			std::set<int> edge_id;
@@ -1218,9 +1427,7 @@ namespace polyfem
 				array.resize(std::distance(array.begin(), it));
 			}
 
-			// return n_bases;
-			// return std::make_tuple(n_bases, mesh_nodes);
-			return std::make_tuple(n_bases, std::make_shared<polyfem::mesh::MeshNodes>(std::move(mesh_nodes)));
+			return n_bases;
 		}
 
 		void SplineBasis3d::fit_nodes(const Mesh3D &mesh, const int n_bases, std::vector<ElementBases> &gbases)

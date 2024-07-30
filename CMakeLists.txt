@@ -57,6 +57,13 @@ endif()
 ################################################################################
 project(PolyFEM DESCRIPTION "A polyvalent C++ FEM library" LANGUAGES C CXX)
 
+# Set Boost configuration to prevent CMake from using the wrong Boost path
+set(Boost_NO_SYSTEM_PATHS ON)
+set(BOOST_ROOT "/users/ljunyu/data/ljunyu/code/iga_ipc/boost_install")
+set(BOOST_INCLUDEDIR "/users/ljunyu/data/ljunyu/code/iga_ipc/boost_install/include")
+set(BOOST_LIBRARYDIR "/users/ljunyu/data/ljunyu/code/iga_ipc/boost_install/lib")
+find_package(Boost REQUIRED)
+
 # Polyfem options
 set(POLYFEM_SMALL_N  80 CACHE STRING "Maximum length for stack-allocated vectors (gradient + Hessian).")
 set(POLYFEM_BIG_N   1000 CACHE STRING "Maximum length for stack-allocated vectors (gradient only).")

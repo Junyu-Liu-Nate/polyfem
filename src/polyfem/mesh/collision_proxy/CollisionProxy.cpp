@@ -392,7 +392,7 @@ namespace polyfem::mesh
 			proxy_vertices, proxy_faces, displacement_map_entries);
 
 		//--- For debug only
-		// saveSurfaceMesh("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/collision_mesh_hex_surface.obj", proxy_vertices, proxy_faces);
+		saveSurfaceMesh("/users/ljunyu/data/ljunyu/code/iga_ipc/polyfem/experiments/output/collision_mesh_hex_surface.obj", proxy_vertices, proxy_faces);
 
 		// Eigen::MatrixXi collision_edges;
 		// igl::edges(proxy_faces, collision_edges);

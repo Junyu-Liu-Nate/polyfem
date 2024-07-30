@@ -20,14 +20,36 @@ namespace polyfem
 		class SplineBasis2d
 		{
 		public:
-			static std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> build_bases(
+			//========== Original implementation -> results in segmentation fault
+			// static int build_bases(
+			// 	const mesh::Mesh2D &mesh,
+			// 	const std::string &assembler,
+			// 	const int quadrature_order,
+			// 	const int mass_quadrature_order,
+			// 	std::vector<ElementBases> &bases,
+			// 	std::vector<mesh::LocalBoundary> &local_boundary,
+			// 	std::map<int, InterfaceData> &poly_edge_to_data);
+			
+			//========== Fixed implementation on mac -> works fine on mac, but results in "double free or corruption (out)" on cluster
+			// static std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> build_bases(
+			// 	const mesh::Mesh2D &mesh,
+			// 	const std::string &assembler,
+			// 	const int quadrature_order,
+			// 	const int mass_quadrature_order,
+			// 	std::vector<ElementBases> &bases,
+			// 	std::vector<mesh::LocalBoundary> &local_boundary,
+			// 	std::map<int, InterfaceData> &poly_edge_to_data);
+
+			//========== Fixed implementation on cluster - follow exact implementation of Lagrange bases
+			static int build_bases(
 				const mesh::Mesh2D &mesh,
 				const std::string &assembler,
 				const int quadrature_order,
 				const int mass_quadrature_order,
 				std::vector<ElementBases> &bases,
 				std::vector<mesh::LocalBoundary> &local_boundary,
-				std::map<int, InterfaceData> &poly_edge_to_data);
+				std::map<int, InterfaceData> &poly_edge_to_data,
+				std::shared_ptr<mesh::MeshNodes> &mesh_nodes);
 
 			static void fit_nodes(const mesh::Mesh2D &mesh, const int n_bases, std::vector<ElementBases> &gbases);
 		};

@@ -676,15 +676,371 @@ namespace polyfem
 			}
 		} // namespace
 
-		std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> SplineBasis2d::build_bases(const Mesh2D &mesh,
+		//========== Original implementation -> results in segmentation fault
+		// int SplineBasis2d::build_bases(const Mesh2D &mesh,
+		// 							   const std::string &assembler,
+		// 							   const int quadrature_order, 
+		// 							   const int mass_quadrature_order, 
+		// 							   std::vector<ElementBases> &bases, 
+		// 							   std::vector<LocalBoundary> &local_boundary, 
+		// 							   std::map<int, InterfaceData> &poly_edge_to_data)
+		// {
+		// 	using std::max;
+		// 	assert(!mesh.is_volume());
+
+		// 	MeshNodes mesh_nodes(mesh, true, true, 1, 1);
+
+		// 	const int n_els = mesh.n_elements();
+		// 	bases.resize(n_els);
+
+		// 	local_boundary.clear();
+
+		// 	// QuadQuadrature quad_quadrature;
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (!mesh.is_spline_compatible(e))
+		// 			continue;
+
+		// 		SpaceMatrix space;
+		// 		NodeMatrix loc_nodes;
+
+		// 		// const int max_local_base =
+		// 		build_local_space(mesh, mesh_nodes, e, space, loc_nodes, local_boundary, poly_edge_to_data);
+		// 		// n_bases = max(n_bases, max_local_base);
+
+		// 		ElementBases &b = bases[e];
+		// 		// quad_quadrature.get_quadrature(quadrature_order, b.quadrature);
+		// 		const int real_order = quadrature_order > 0 ? quadrature_order : AssemblerUtils::quadrature_order(assembler, 2, AssemblerUtils::BasisType::SPLINE, 2);
+		// 		const int real_mass_order = mass_quadrature_order > 0 ? mass_quadrature_order : AssemblerUtils::quadrature_order("Mass", 2, AssemblerUtils::BasisType::SPLINE, 2);
+
+		// 		b.set_quadrature([real_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_order, quad);
+		// 		});
+		// 		b.set_mass_quadrature([real_mass_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_mass_order, quad);
+		// 		});
+		// 		b.bases.resize(9);
+
+		// 		b.set_local_node_from_primitive_func([e](const int primitive_id, const Mesh &mesh) {
+		// 			Eigen::VectorXi res(3);
+		// 			const auto &mesh2d = dynamic_cast<const Mesh2D &>(mesh);
+		// 			auto index = mesh2d.get_index_from_face(e);
+		// 			int le;
+		// 			for (le = 0; le < mesh2d.n_face_vertices(e); ++le)
+		// 			{
+		// 				if (index.edge == primitive_id)
+		// 					break;
+		// 				index = mesh2d.next_around_face(index);
+		// 			}
+		// 			assert(index.edge == primitive_id);
+
+		// 			switch (le)
+		// 			{
+		// 			case 3:
+		// 				res << (3 * 0 + 0), (3 * 1 + 0), (3 * 2 + 0);
+		// 				break;
+		// 			case 0:
+		// 				res << (3 * 0 + 0), (3 * 0 + 1), (3 * 0 + 2);
+		// 				break;
+		// 			case 1:
+		// 				res << (3 * 0 + 2), (3 * 1 + 2), (3 * 2 + 2);
+		// 				break;
+		// 			case 2:
+		// 				res << (3 * 2 + 0), (3 * 2 + 1), (3 * 2 + 2);
+		// 				break;
+		// 			default:
+		// 				assert(false);
+		// 			}
+
+		// 			return res;
+		// 		});
+
+		// 		std::array<std::array<double, 4>, 3> h_knots;
+		// 		std::array<std::array<double, 4>, 3> v_knots;
+
+		// 		setup_knots_vectors(mesh_nodes, space, h_knots, v_knots);
+
+		// 		// print_local_space(space);
+
+		// 		basis_for_regular_quad(space, loc_nodes, h_knots, v_knots, b);
+		// 		basis_for_irregulard_quad(e, mesh, mesh_nodes, space, loc_nodes, h_knots, v_knots, b);
+		// 	}
+
+		// 	std::set<int> edge_id;
+		// 	std::set<int> vertex_id;
+
+		// 	int n_bases = mesh_nodes.n_nodes();
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 			continue;
+
+		// 		ElementBases &b = bases[e];
+		// 		// quad_quadrature.get_quadrature(quadrature_order, b.quadrature);
+		// 		const int real_order = quadrature_order > 0 ? quadrature_order : AssemblerUtils::quadrature_order(assembler, 2, AssemblerUtils::BasisType::CUBE_LAGRANGE, 2);
+		// 		const int real_mass_order = mass_quadrature_order > 0 ? mass_quadrature_order : AssemblerUtils::quadrature_order("Mass", 2, AssemblerUtils::BasisType::CUBE_LAGRANGE, 2);
+
+		// 		b.set_quadrature([real_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_order, quad);
+		// 		});
+		// 		b.set_mass_quadrature([real_mass_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_mass_order, quad);
+		// 		});
+
+		// 		b.set_local_node_from_primitive_func([e](const int primitive_id, const Mesh &mesh) {
+		// 			const auto &mesh2d = dynamic_cast<const Mesh2D &>(mesh);
+		// 			auto index = mesh2d.get_index_from_face(e);
+
+		// 			for (int le = 0; le < mesh2d.n_face_vertices(e); ++le)
+		// 			{
+		// 				if (index.edge == primitive_id)
+		// 					break;
+		// 				index = mesh2d.next_around_face(index);
+		// 			}
+		// 			assert(index.edge == primitive_id);
+
+		// 			// const auto indices = LagrangeBasis2d::quadr_quad_edge_local_nodes(mesh2d, index);
+		// 			const auto indices = LagrangeBasis2d::quad_edge_local_nodes(2, mesh2d, index);
+		// 			Eigen::VectorXi res(indices.size());
+
+		// 			for (size_t i = 0; i < indices.size(); ++i)
+		// 				res(i) = indices[i];
+
+		// 			return res;
+		// 		});
+
+		// 		create_q2_nodes(mesh, e, vertex_id, edge_id, b, local_boundary, n_bases);
+		// 	}
+
+		// 	bool missing_bases = false;
+		// 	do
+		// 	{
+		// 		missing_bases = false;
+		// 		for (int e = 0; e < n_els; ++e)
+		// 		{
+		// 			if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 				continue;
+
+		// 			auto &b = bases[e];
+		// 			if (b.is_complete())
+		// 				continue;
+
+		// 			assign_q2_weights(mesh, e, bases);
+
+		// 			missing_bases = missing_bases || b.is_complete();
+		// 		}
+		// 	} while (missing_bases);
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 			continue;
+		// 		const ElementBases &b = bases[e];
+		// 		setup_data_for_polygons(mesh, e, b, poly_edge_to_data);
+		// 	}
+
+		// 	return n_bases;
+		// }
+
+		// std::tuple<int, std::shared_ptr<polyfem::mesh::MeshNodes>> SplineBasis2d::build_bases(const Mesh2D &mesh,
+		// 							   const std::string &assembler,
+		// 							   const int quadrature_order, const int mass_quadrature_order, std::vector<ElementBases> &bases, std::vector<LocalBoundary> &local_boundary, std::map<int, InterfaceData> &poly_edge_to_data)
+		// {
+		// 	using std::max;
+		// 	assert(!mesh.is_volume());
+
+		// 	// MeshNodes mesh_nodes(mesh, true, true, 1, 1);
+		// 	auto mesh_nodes = std::make_shared<polyfem::mesh::MeshNodes>(mesh, true, true, 1, 1);
+		// 	std::cout << "Check for build_bases in SplineBasis2d" << std::endl;
+
+		// 	const int n_els = mesh.n_elements();
+		// 	bases.resize(n_els);
+
+		// 	local_boundary.clear();
+
+		// 	// QuadQuadrature quad_quadrature;
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (!mesh.is_spline_compatible(e))
+		// 			continue;
+
+		// 		SpaceMatrix space;
+		// 		NodeMatrix loc_nodes;
+
+		// 		// const int max_local_base =
+		// 		build_local_space(mesh, *mesh_nodes, e, space, loc_nodes, local_boundary, poly_edge_to_data);
+		// 		// n_bases = max(n_bases, max_local_base);
+
+		// 		ElementBases &b = bases[e];
+		// 		// quad_quadrature.get_quadrature(quadrature_order, b.quadrature);
+		// 		const int real_order = quadrature_order > 0 ? quadrature_order : AssemblerUtils::quadrature_order(assembler, 2, AssemblerUtils::BasisType::SPLINE, 2);
+		// 		const int real_mass_order = mass_quadrature_order > 0 ? mass_quadrature_order : AssemblerUtils::quadrature_order("Mass", 2, AssemblerUtils::BasisType::SPLINE, 2);
+
+		// 		b.set_quadrature([real_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_order, quad);
+		// 		});
+		// 		b.set_mass_quadrature([real_mass_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_mass_order, quad);
+		// 		});
+		// 		b.bases.resize(9);
+
+		// 		b.set_local_node_from_primitive_func([e](const int primitive_id, const Mesh &mesh) {
+		// 			Eigen::VectorXi res(3);
+		// 			const auto &mesh2d = dynamic_cast<const Mesh2D &>(mesh);
+		// 			auto index = mesh2d.get_index_from_face(e);
+		// 			int le;
+		// 			for (le = 0; le < mesh2d.n_face_vertices(e); ++le)
+		// 			{
+		// 				if (index.edge == primitive_id)
+		// 					break;
+		// 				index = mesh2d.next_around_face(index);
+		// 			}
+		// 			assert(index.edge == primitive_id);
+
+		// 			switch (le)
+		// 			{
+		// 			case 3:
+		// 				res << (3 * 0 + 0), (3 * 1 + 0), (3 * 2 + 0);
+		// 				break;
+		// 			case 0:
+		// 				res << (3 * 0 + 0), (3 * 0 + 1), (3 * 0 + 2);
+		// 				break;
+		// 			case 1:
+		// 				res << (3 * 0 + 2), (3 * 1 + 2), (3 * 2 + 2);
+		// 				break;
+		// 			case 2:
+		// 				res << (3 * 2 + 0), (3 * 2 + 1), (3 * 2 + 2);
+		// 				break;
+		// 			default:
+		// 				assert(false);
+		// 			}
+
+		// 			return res;
+		// 		});
+
+		// 		std::array<std::array<double, 4>, 3> h_knots;
+		// 		std::array<std::array<double, 4>, 3> v_knots;
+
+		// 		setup_knots_vectors(*mesh_nodes, space, h_knots, v_knots);
+
+		// 		// print_local_space(space);
+
+		// 		basis_for_regular_quad(space, loc_nodes, h_knots, v_knots, b);
+		// 		basis_for_irregulard_quad(e, mesh, *mesh_nodes, space, loc_nodes, h_knots, v_knots, b);
+		// 	}
+
+		// 	std::set<int> edge_id;
+		// 	std::set<int> vertex_id;
+
+		// 	// int n_bases = mesh_nodes.n_nodes();
+		// 	int n_bases = mesh_nodes->n_nodes();
+		// 	std::cout << "	mesh_nodes.n_nodes() = " << mesh_nodes->n_nodes() << std::endl;
+		// 	std::cout << "	mesh_nodes.num_vertex_nodes() = " << mesh_nodes->num_vertex_nodes() << std::endl;
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 			continue;
+
+		// 		ElementBases &b = bases[e];
+		// 		// quad_quadrature.get_quadrature(quadrature_order, b.quadrature);
+		// 		const int real_order = quadrature_order > 0 ? quadrature_order : AssemblerUtils::quadrature_order(assembler, 2, AssemblerUtils::BasisType::CUBE_LAGRANGE, 2);
+		// 		const int real_mass_order = mass_quadrature_order > 0 ? mass_quadrature_order : AssemblerUtils::quadrature_order("Mass", 2, AssemblerUtils::BasisType::CUBE_LAGRANGE, 2);
+
+		// 		b.set_quadrature([real_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_order, quad);
+		// 		});
+		// 		b.set_mass_quadrature([real_mass_order](Quadrature &quad) {
+		// 			QuadQuadrature quad_quadrature;
+		// 			quad_quadrature.get_quadrature(real_mass_order, quad);
+		// 		});
+
+		// 		b.set_local_node_from_primitive_func([e](const int primitive_id, const Mesh &mesh) {
+		// 			const auto &mesh2d = dynamic_cast<const Mesh2D &>(mesh);
+		// 			auto index = mesh2d.get_index_from_face(e);
+
+		// 			for (int le = 0; le < mesh2d.n_face_vertices(e); ++le)
+		// 			{
+		// 				if (index.edge == primitive_id)
+		// 					break;
+		// 				index = mesh2d.next_around_face(index);
+		// 			}
+		// 			assert(index.edge == primitive_id);
+
+		// 			// const auto indices = LagrangeBasis2d::quadr_quad_edge_local_nodes(mesh2d, index);
+		// 			const auto indices = LagrangeBasis2d::quad_edge_local_nodes(2, mesh2d, index);
+		// 			Eigen::VectorXi res(indices.size());
+
+		// 			for (size_t i = 0; i < indices.size(); ++i)
+		// 				res(i) = indices[i];
+
+		// 			return res;
+		// 		});
+
+		// 		create_q2_nodes(mesh, e, vertex_id, edge_id, b, local_boundary, n_bases);
+		// 	}
+
+		// 	bool missing_bases = false;
+		// 	do
+		// 	{
+		// 		missing_bases = false;
+		// 		for (int e = 0; e < n_els; ++e)
+		// 		{
+		// 			if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 				continue;
+
+		// 			auto &b = bases[e];
+		// 			if (b.is_complete())
+		// 				continue;
+
+		// 			assign_q2_weights(mesh, e, bases);
+
+		// 			missing_bases = missing_bases || b.is_complete();
+		// 		}
+		// 	} while (missing_bases);
+
+		// 	for (int e = 0; e < n_els; ++e)
+		// 	{
+		// 		if (mesh.is_polytope(e) || mesh.is_spline_compatible(e))
+		// 			continue;
+		// 		const ElementBases &b = bases[e];
+		// 		setup_data_for_polygons(mesh, e, b, poly_edge_to_data);
+		// 	}
+
+		// 	// std::cout << "	mesh_nodes.n_nodes() = " << mesh_nodes.n_nodes() << std::endl;
+		// 	// std::cout << "	mesh_nodes.num_vertex_nodes() = " << mesh_nodes.num_vertex_nodes() << std::endl;
+
+		// 	// return n_bases;
+		// 	return std::make_tuple(n_bases, mesh_nodes);
+		// }
+
+		int SplineBasis2d::build_bases(const Mesh2D &mesh,
 									   const std::string &assembler,
-									   const int quadrature_order, const int mass_quadrature_order, std::vector<ElementBases> &bases, std::vector<LocalBoundary> &local_boundary, std::map<int, InterfaceData> &poly_edge_to_data)
+									   const int quadrature_order, 
+									   const int mass_quadrature_order, 
+									   std::vector<ElementBases> &bases, 
+									   std::vector<LocalBoundary> &local_boundary, 
+									   std::map<int, InterfaceData> &poly_edge_to_data,
+									   std::shared_ptr<mesh::MeshNodes> &mesh_nodes)
 		{
 			using std::max;
 			assert(!mesh.is_volume());
 
 			// MeshNodes mesh_nodes(mesh, true, true, 1, 1);
-			auto mesh_nodes = std::make_shared<polyfem::mesh::MeshNodes>(mesh, true, true, 1, 1);
+			// auto mesh_nodes = std::make_shared<polyfem::mesh::MeshNodes>(mesh, true, true, 1, 1);
+			if (!mesh_nodes) {
+				mesh_nodes = std::make_shared<MeshNodes>(mesh, true, true, 1, 1);
+			}
 			std::cout << "Check for build_bases in SplineBasis2d" << std::endl;
 
 			const int n_els = mesh.n_elements();
@@ -848,8 +1204,8 @@ namespace polyfem
 			// std::cout << "	mesh_nodes.n_nodes() = " << mesh_nodes.n_nodes() << std::endl;
 			// std::cout << "	mesh_nodes.num_vertex_nodes() = " << mesh_nodes.num_vertex_nodes() << std::endl;
 
-			// return n_bases;
-			return std::make_tuple(n_bases, mesh_nodes);
+			return mesh_nodes->n_nodes();
+			// return std::make_tuple(n_bases, mesh_nodes);
 		}
 
 		void SplineBasis2d::fit_nodes(const Mesh2D &mesh, const int n_bases, std::vector<ElementBases> &gbases)

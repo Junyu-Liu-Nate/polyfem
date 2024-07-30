@@ -1,6 +1,6 @@
 #========== Tri mesh
 ##### Falling under gravity
-# ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/ipc/unit-tri-falling.json \
+# ./PolyFEM_bin -j ../experiments/json/ipc/unit-tri-falling.json \
 #               -o ../experiments/output/contact-2D-higher-order/unit-tri-falling/
 
 # ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/ipc/L-shape-tri-falling.json \
@@ -17,7 +17,7 @@
 
 #========== Quad mesh
 ##### Falling under gravity
-./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/unit-quad-falling.json \
+./PolyFEM_bin -j ../experiments/json/iga-ipc/unit-quad-falling.json \
               -o ../experiments/output/contact-2D-IGA/unit-quad-falling/
 
 # ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/L-shape-quad-falling.json \
@@ -40,7 +40,7 @@
 # ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/trash-compactor-unit-quads.json \
 #               -o ../experiments/output/contact-2D-IGA/trash-compactor-unit-quads/
 
-# ./PolyFEM_bin -j /Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/json/iga-ipc/trash-compactor-L-shapes.json \
+# ./PolyFEM_bin -j ../experiments/json/iga-ipc/trash-compactor-L-shapes.json \
 #               -o ../experiments/output/contact-2D-IGA/trash-compactor-L-shapes/
 
 ##### Funnel

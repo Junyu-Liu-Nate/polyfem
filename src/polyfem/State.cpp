@@ -227,19 +227,40 @@ namespace polyfem
 
 	std::vector<int> State::primitive_to_node() const
 	{
-		std::cout << "Check in primitive_to_node()" << std::endl;
+		// std::cout << "Check in primitive_to_node()" << std::endl;
 		auto indices = iso_parametric() ? mesh_nodes->primitive_to_node() : geom_mesh_nodes->primitive_to_node();
 		indices.resize(mesh->n_vertices());
+		
+		// Printing out indices before returning
+		std::cout << "In primitive_to_node(): Final indices content before return:" << std::endl;
+		for (size_t i = 0; i < indices.size(); i++) {
+			std::cout << "indices[" << i << "]: " << indices[i] << std::endl;
+		}
+		std::cout << "" << std::endl;
+		
 		return indices;
 	}
 
-	std::vector<int> State::node_to_primitive() const
-	{
+	std::vector<int> State::node_to_primitive() const {
 		auto p2n = primitive_to_node();
 		std::vector<int> indices;
 		indices.resize(n_geom_bases);
-		for (int i = 0; i < p2n.size(); i++)
+		// std::vector<int> indices(n_geom_bases);  // Initialize all to -1
+		for (int i = 0; i < p2n.size(); i++) {
+			if (p2n[i] == -1 || p2n[i] >= n_geom_bases) {
+				// Skip invalid indices
+				continue;
+			}
 			indices[p2n[i]] = i;
+		}
+
+		// Print the indices to debug
+		std::cout << "In node_to_primitive(): Final indices content before return:" << std::endl;
+		for (size_t i = 0; i < indices.size(); i++) {
+			std::cout << "indices[" << i << "]: " << indices[i] << std::endl;
+		}
+		std::cout << "" << std::endl;
+
 		return indices;
 	}
 
@@ -808,7 +829,8 @@ namespace polyfem
 				// }
 
 				// n_bases = basis::SplineBasis3d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
-				std::tie(n_bases, mesh_nodes) = basis::SplineBasis3d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
+				// std::tie(n_bases, mesh_nodes) = basis::SplineBasis3d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
+				n_bases = basis::SplineBasis3d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data, mesh_nodes);
 				std::cout << "Check for State.cpp - build_basis():" << std::endl;
 				std::cout << "	mesh_nodes->n_nodes() = " << mesh_nodes->n_nodes() << std::endl;
 				std::cout << "	mesh_nodes->num_vertex_nodes() = " << mesh_nodes->num_vertex_nodes() << std::endl;
@@ -843,10 +865,13 @@ namespace polyfem
 				// }
 
 				// n_bases = basis::SplineBasis2d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
-				std::tie(n_bases, mesh_nodes) = basis::SplineBasis2d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
+				// std::tie(n_bases, mesh_nodes) = basis::SplineBasis2d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data);
+				n_bases = basis::SplineBasis2d::build_bases(tmp_mesh, assembler->name(), quadrature_order, mass_quadrature_order, bases, local_boundary, poly_edge_to_data, mesh_nodes);
 				std::cout << "Check for State.cpp - build_basis():" << std::endl;
 				std::cout << "	mesh_nodes->n_nodes() = " << mesh_nodes->n_nodes() << std::endl;
 				std::cout << "	mesh_nodes->num_vertex_nodes() = " << mesh_nodes->num_vertex_nodes() << std::endl;
+				std::cout << "Finish check State.cpp - build_basis()" << std::endl;
+				
 				// if (iso_parametric() && args["fit_nodes"])
 				// 	SplineBasis2d::fit_nodes(tmp_mesh, n_bases, bases);
 			}
@@ -1794,15 +1819,15 @@ namespace polyfem
 		// // Print statements to check the validity of each parameter before creating the PressureAssembler
 		// std::cout << "Checking assembler validity: " << (assembler != nullptr) << std::endl;
 		// std::cout << "Checking mesh validity: " << (mesh != nullptr) << std::endl;
-		// // std::cout << "Checking obstacle validity: " << (obstacle != nullptr) << std::endl;
 		// std::cout << "Checking local_pressure_boundary size: " << local_pressure_boundary.size() << std::endl;
 		// std::cout << "Checking local_pressure_cavity size: " << local_pressure_cavity.size() << std::endl;
 		// std::cout << "Checking boundary_nodes size: " << boundary_nodes.size() << std::endl;
 		// std::cout << "Checking primitive_to_node validity: " << (!primitive_to_node().empty()) << std::endl;
+		// // std::cout << "--- Finish check primitive_to_node validity ---" << std::endl;
 		// std::cout << "Checking node_to_primitive validity: " << (!node_to_primitive().empty()) << std::endl;
+		// // std::cout << "--- Finish check node_to_primitive validity ---" << std::endl;
 		// std::cout << "Checking n_bases_ value: " << n_bases_ << std::endl;
 		// std::cout << "Checking size value: " << size << std::endl;
-		// // std::cout << "Checking bases_ size: " << (bases_ != nullptr ? bases_->size() : 0) << std::endl; // Adjust this according to actual structure if necessary
 		// std::cout << "Checking geom_bases() size: " << geom_bases().size() << std::endl; // Adjust if geom_bases is a function returning a vector
 		// std::cout << "Checking problem validity: " << (problem != nullptr) << std::endl;
 

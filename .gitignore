@@ -91,3 +91,4 @@ scripts/*.json
 experiments/output/
 polyspline-data/
 pref-data/
+.DS_Store

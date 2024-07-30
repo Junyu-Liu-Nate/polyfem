@@ -91,7 +91,7 @@ namespace polyfem::mesh
 			mesh->refine(n_refs, refinement_location);
 			mesh->set_body_ids(std::vector<int>(mesh->n_elements(), uniform_value));
 
-			mesh->save("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/refined_mesh_1.obj");
+			mesh->save("/users/ljunyu/data/ljunyu/code/iga_ipc/polyfem/experiments/output/refined_mesh_1.obj");
 		}
 
 		// --------------------------------------------------------------------
@@ -224,7 +224,7 @@ namespace polyfem::mesh
 		}
 
 		// --------------------------------------------------------------------
-		mesh->save("/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/output/refined_mesh_2.obj");
+		mesh->save("/users/ljunyu/data/ljunyu/code/iga_ipc/polyfem/experiments/output/refined_mesh_2.obj");
 		return mesh;
 	}
 

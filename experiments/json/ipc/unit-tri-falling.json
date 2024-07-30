@@ -1,6 +1,6 @@
 {
     "geometry": [{
-        "mesh": "/Users/liujunyu/Desktop/Research/UVic_NYU/IGA_IPC/code/polyfem/experiments/mesh/ipc/2d-tri/2d-tri-sub3-irregular.obj",
+        "mesh": "../../mesh/ipc/2d-tri/2d-tri-sub3-irregular.obj",
         "transformation": {
             "translation": [0, 5, 0],
             "rotation": 0
